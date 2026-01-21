@@ -7,7 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>分析</title>
   <link rel="stylesheet" href="assets/app.css" />
-  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     #cameraBox {
       width: 360px;
@@ -117,11 +116,25 @@
       transform: translateX(-50%) scale(1.1);
     }
 
-    #faceGuide.aligned {
+    /* 多層級對齊狀態 - 提供更細緻的視覺回饋 */
+    #faceGuide.aligned-perfect {
+      border: 3px solid #10b981;
+      animation: none;
+      background: rgba(16, 185, 129, 0.15);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    #faceGuide.aligned-good {
       border: 3px solid #4ade80;
       animation: none;
       background: rgba(74, 222, 128, 0.1);
     }
+
+    #faceGuide.aligned-poor {
+      border: 2px dashed rgba(255, 255, 255, .65);
+      animation: pulse 2.5s infinite ease-in-out;
+    }
+
 
     #cameraBox.loading::after {
       content: "AI 分析中…";
@@ -135,6 +148,39 @@
       letter-spacing: 2px;
       z-index: 10;
     }
+
+    /* 載入進度條 */
+    #loadingProgress {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 300px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      overflow: hidden;
+      z-index: 6;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #loadingProgress.show {
+      opacity: 1;
+    }
+
+    #loadingProgress::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: var(--progress, 0%);
+      background: linear-gradient(90deg, #4ade80, #10b981);
+      transition: width 0.3s ease;
+    }
+
 
     #flash {
       position: fixed;
@@ -176,6 +222,7 @@
       <div class="hint" id="hint">相機啟動中…</div>
       <div id="faceGuide"></div>
       <div id="captureBtn" aria-label="拍照" role="button"></div>
+      <div id="loadingProgress"></div>
     </div>
   </div>
 
@@ -198,14 +245,26 @@
       setTimeout(() => toastEl.classList.remove("show"), 2200);
     }
 
-    // -------- DOM ----------
-    const video = document.getElementById("video");
-    const cameraBox = document.getElementById("cameraBox");
-    const captureBtn = document.getElementById("captureBtn");
-    const canvas = document.getElementById("canvas");
-    const flash = document.getElementById("flash");
-    const meshCanvas = document.getElementById("meshCanvas");
-    const hint = document.getElementById("hint");
+    // -------- DOM 快取（優化：避免重複查詢）----------
+    const DOM = {
+      video: document.getElementById("video"),
+      cameraBox: document.getElementById("cameraBox"),
+      captureBtn: document.getElementById("captureBtn"),
+      canvas: document.getElementById("canvas"),
+      flash: document.getElementById("flash"),
+      meshCanvas: document.getElementById("meshCanvas"),
+      hint: document.getElementById("hint"),
+      faceGuide: document.getElementById("faceGuide")
+    };
+
+    // 向後相容：保留原有變數名稱
+    const video = DOM.video;
+    const cameraBox = DOM.cameraBox;
+    const captureBtn = DOM.captureBtn;
+    const canvas = DOM.canvas;
+    const flash = DOM.flash;
+    const meshCanvas = DOM.meshCanvas;
+    const hint = DOM.hint;
 
     const meshCtx = meshCanvas.getContext("2d", { alpha: true });
 
@@ -220,6 +279,11 @@
     let running = false;
     let lastMetrics = null;
     let isAligned = false; // 是否對準
+
+    // 效能優化：FPS 限制
+    let lastFrameTime = 0;
+    const FPS_LIMIT = 30; // 限制在 30 FPS 以節省電力
+    const FRAME_INTERVAL = 1000 / FPS_LIMIT;
 
     const SKIP_UPLOAD = true;
 
@@ -245,25 +309,46 @@
     }
 
     // =========================
-    // 初始化模型
+    // 初始化模型（優化：加入載入提示與錯誤處理）
     // =========================
     async function initModel() {
-      const fileset = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
-      );
+      const progressBar = document.getElementById('loadingProgress');
 
-      faceLandmarker = await FaceLandmarker.createFromOptions(fileset, {
-        baseOptions: {
-          modelAssetPath:
-            "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
-          delegate: "GPU",
-        },
-        runningMode: "VIDEO",
-        numFaces: 1,
-        outputFaceBlendshapes: true,
-        outputFacialTransformationMatrixes: false,
-      });
+      try {
+        // 顯示進度條
+        progressBar.classList.add('show');
+        progressBar.style.setProperty('--progress', '10%');
+        hint.textContent = "AI 模型載入中，請稍候...";
 
+        const fileset = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+        );
+        progressBar.style.setProperty('--progress', '40%');
+
+        faceLandmarker = await FaceLandmarker.createFromOptions(fileset, {
+          baseOptions: {
+            modelAssetPath:
+              "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+            delegate: "GPU",
+          },
+          runningMode: "VIDEO",
+          numFaces: 1,
+          outputFaceBlendshapes: true,
+          outputFacialTransformationMatrixes: false,
+        });
+
+        progressBar.style.setProperty('--progress', '100%');
+        hint.textContent = "模型載入完成！";
+
+        // 延遲隱藏進度條
+        setTimeout(() => progressBar.classList.remove('show'), 500);
+      } catch (error) {
+        console.error("MediaPipe 模型載入失敗:", error);
+        hint.textContent = "AI 模型載入失敗，請重新整理頁面";
+        toast("AI 模型載入失敗，請檢查網路連線");
+        progressBar.classList.remove('show');
+        throw error;
+      }
     }
 
     function packMetrics(result) {
@@ -275,7 +360,7 @@
     }
 
     // =========================
-    // 畫特效：用官方 drawConnectors（避免你的 conn 解析爆掉）
+    // 取得臉部特徵點（不繪製網格，簡化視覺）
     // =========================
     function drawEffect(result) {
       const rect = cameraBox.getBoundingClientRect();
@@ -301,26 +386,89 @@
         };
       }
 
-      const connections = FaceLandmarker.FACE_LANDMARKS_TESSELATION || [];
-      meshCtx.lineWidth = 1;
-      meshCtx.strokeStyle = isAligned ? "rgba(74, 222, 128, 0.8)" : "rgba(255,255,255,.7)";
-      meshCtx.beginPath();
-      for (const c of connections) {
-        const a = c[0] ?? c.start;
-        const b = c[1] ?? c.end;
-        if (a == null || b == null) continue;
-        const p1 = points[a];
-        const p2 = points[b];
-        if (!p1 || !p2) continue;
-        meshCtx.moveTo(p1.x, p1.y);
-        meshCtx.lineTo(p2.x, p2.y);
-      }
-      meshCtx.stroke();
-      return points; // 回傳給檢測 logic
+      // 不繪製網格，只回傳座標點供對齊檢測使用
+      return points;
     }
 
+    /**
+     * 檢測畫面亮度（光線檢測）
+     * @returns {number} 亮度值 0-255
+     */
+    function detectBrightness() {
+      const tempCanvas = document.createElement('canvas');
+      const w = video.videoWidth;
+      const h = video.videoHeight;
+      if (!w || !h) return 0;
+
+      tempCanvas.width = w;
+      tempCanvas.height = h;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, w, h);
+
+      const imageData = ctx.getImageData(0, 0, w, h);
+      const data = imageData.data;
+      let sum = 0;
+
+      // 計算平均亮度
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        // 使用加權平均計算亮度
+        const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+        sum += brightness;
+      }
+
+      return sum / (w * h);
+    }
+
+    /**
+     * 檢測畫面模糊度（使用 Laplacian 變異數）
+     * @returns {number} 清晰度分數，越高越清晰
+     */
+    function detectBlur() {
+      const tempCanvas = document.createElement('canvas');
+      const w = Math.min(video.videoWidth, 320); // 縮小以提升效能
+      const h = Math.min(video.videoHeight, 240);
+      if (!w || !h) return 0;
+
+      tempCanvas.width = w;
+      tempCanvas.height = h;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, w, h);
+
+      const imageData = ctx.getImageData(0, 0, w, h);
+      const data = imageData.data;
+
+      // 簡化的 Laplacian 計算
+      let variance = 0;
+      for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+          const idx = (y * w + x) * 4;
+          const center = data[idx];
+          const top = data[((y - 1) * w + x) * 4];
+          const bottom = data[((y + 1) * w + x) * 4];
+          const left = data[(y * w + (x - 1)) * 4];
+          const right = data[(y * w + (x + 1)) * 4];
+
+          const laplacian = Math.abs(4 * center - top - bottom - left - right);
+          variance += laplacian * laplacian;
+        }
+      }
+
+      return variance / (w * h);
+    }
+
+    /**
+     * 檢查臉部對準狀態（加入品質檢測）
+     * @param {Array<{x: number, y: number}>} points - MediaPipe 偵測到的臉部特徵點
+     * @returns {string} 對齊狀態: 'perfect', 'good', 'poor'
+     */
     function checkAlignment(points) {
-      if (!points || points.length === 0) return false;
+      if (!points || points.length === 0) {
+        updateAlignmentUI('poor');
+        return 'poor';
+      }
 
       // 取得臉部範圍
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -332,39 +480,93 @@
       });
 
       const faceW = maxX - minX;
-      const faceH = maxY - minY;
       const faceCx = (minX + maxX) / 2;
       const faceCy = (minY + maxY) / 2;
 
-      // 判斷邏輯：
-      // 1. 中心點偏差在 35px 內
-      // 2. 寬度比例在 0.7~1.1 之間
       const dist = Math.sqrt(Math.pow(faceCx - GUIDE.cx, 2) + Math.pow(faceCy - GUIDE.cy, 2));
       const wRatio = faceW / GUIDE.w;
 
-      const aligned = dist < 45 && wRatio > 0.65 && wRatio < 1.15;
+      // 品質檢測
+      const brightness = detectBrightness();
+      const blurScore = detectBlur();
 
-      const faceGuide = document.getElementById("faceGuide");
-      if (aligned) {
-        if (!isAligned) {
-          isAligned = true;
-          faceGuide.classList.add("aligned");
-          captureBtn.classList.add("active");
-          hint.textContent = "已對準，可以拍照了！";
-        }
-      } else {
-        if (isAligned) {
-          isAligned = false;
-          faceGuide.classList.remove("aligned");
-          captureBtn.classList.remove("active");
-          hint.textContent = "請將臉部移至框線內";
-        }
+      // 品質閾值
+      const MIN_BRIGHTNESS = 80;  // 最低亮度要求
+      const MAX_BRIGHTNESS = 220; // 最高亮度（避免過曝）
+      const MIN_BLUR_SCORE = 100; // 最低清晰度要求
+
+      // 嚴格的三層級判斷
+      let state = 'poor';
+      let qualityIssue = '';
+
+      // 檢查光線
+      if (brightness < MIN_BRIGHTNESS) {
+        qualityIssue = '光線不足，請移至明亮處';
+      } else if (brightness > MAX_BRIGHTNESS) {
+        qualityIssue = '光線過強，請避免強光';
       }
-      return aligned;
+      // 檢查清晰度
+      else if (blurScore < MIN_BLUR_SCORE) {
+        qualityIssue = '畫面模糊，請保持穩定';
+      }
+      // 檢查距離（更嚴格）
+      else if (wRatio < 0.75 || wRatio > 1.05) {
+        qualityIssue = wRatio < 0.75 ? '請靠近一點' : '請稍微遠離';
+      }
+      // 檢查位置（更嚴格）
+      else if (dist < 20 && wRatio >= 0.9 && wRatio <= 1.0) {
+        state = 'perfect'; // 完美對準：距離近、大小剛好、光線OK、清晰
+      } else if (dist < 35 && wRatio >= 0.8 && wRatio <= 1.1) {
+        state = 'good'; // 良好對準：稍微寬鬆一點
+      } else {
+        qualityIssue = '請將臉部移至框線內';
+      }
+
+      updateAlignmentUI(state, qualityIssue);
+      return state;
     }
 
-    function loop() {
+    /**
+     * 更新對齊狀態的 UI 回饋
+     */
+    let currentAlignmentState = 'poor';
+    function updateAlignmentUI(newState, qualityIssue = '') {
+      if (newState === currentAlignmentState) return;
+
+      // 移除所有對齊狀態
+      DOM.faceGuide.classList.remove('aligned-perfect', 'aligned-good', 'aligned-poor');
+
+      // 加入新狀態
+      DOM.faceGuide.classList.add(`aligned-${newState}`);
+      currentAlignmentState = newState;
+
+      // 更新按鈕與提示文字
+      if (newState === 'perfect') {
+        DOM.captureBtn.classList.add('active');
+        DOM.hint.textContent = "✨ 完美對準！可以拍照了";
+      } else if (newState === 'good') {
+        DOM.captureBtn.classList.add('active');
+        DOM.hint.textContent = "✓ 已對準，可以拍照了";
+      } else {
+        DOM.captureBtn.classList.remove('active');
+        // 顯示具體的品質問題
+        DOM.hint.textContent = qualityIssue || "請將臉部移至框線內";
+      }
+    }
+
+
+    /**
+     * 主偵測迴圈（優化：加入 FPS 限制以節省效能）
+     */
+    function loop(timestamp) {
       if (!running) return;
+
+      // 效能優化：限制 FPS
+      if (timestamp - lastFrameTime < FRAME_INTERVAL) {
+        requestAnimationFrame(loop);
+        return;
+      }
+      lastFrameTime = timestamp;
 
       if (!video.videoWidth || !video.videoHeight) {
         requestAnimationFrame(loop);
@@ -374,12 +576,19 @@
       try {
         const now = performance.now();
         const result = faceLandmarker.detectForVideo(video, now);
-        const points = drawEffect(result); // 修改 drawEffect 讓它回傳座標點
+        const points = drawEffect(result);
         checkAlignment(points);
         lastMetrics = packMetrics(result);
       } catch (e) {
-        console.error("effect error:", e);
+        console.error("MediaPipe 偵測錯誤:", e);
         meshCtx.clearRect(0, 0, meshCanvas.width, meshCanvas.height);
+        // 錯誤處理：如果連續失敗，提示使用者
+        if (!window._detectionErrorCount) window._detectionErrorCount = 0;
+        window._detectionErrorCount++;
+        if (window._detectionErrorCount > 100) {
+          toast("臉部偵測異常，請重新整理頁面");
+          window._detectionErrorCount = 0;
+        }
       }
 
       requestAnimationFrame(loop);
@@ -388,36 +597,56 @@
     // =========================
     // 相機
     // =========================
+    /**
+     * 開啟相機（優化：加入完整錯誤處理）
+     */
     async function openCamera() {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error("此瀏覽器不支援相機功能");
+      try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error("此瀏覽器不支援相機功能");
+        }
+
+        hint.textContent = "正在開啟相機...";
+
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+
+        video.srcObject = stream;
+
+        await new Promise(resolve => {
+          if (video.readyState >= 2) return resolve();
+          video.onloadedmetadata = () => resolve();
+        });
+
+        // autoplay 保險：有些環境會卡住
+        const kick = async () => { try { await video.play(); } catch (e) { } };
+        await kick();
+        window.addEventListener("pointerdown", kick, { once: true });
+
+        syncOverlaySize();
+        window.addEventListener("resize", syncOverlaySize);
+
+        if (!faceLandmarker) await initModel();
+
+        running = true;
+        hint.textContent = "相機已啟動，請對準框線後按下拍照";
+        loop();
+      } catch (error) {
+        console.error("相機啟動失敗:", error);
+        hint.textContent = "相機啟動失敗";
+
+        // 根據錯誤類型給予不同提示
+        if (error.name === "NotAllowedError") {
+          toast("請允許使用相機權限");
+        } else if (error.name === "NotFoundError") {
+          toast("找不到相機裝置");
+        } else {
+          toast("相機啟動失敗，請使用 Chrome 或 Safari");
+        }
+        throw error;
       }
-
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false
-      });
-
-      video.srcObject = stream;
-
-      await new Promise(resolve => {
-        if (video.readyState >= 2) return resolve();
-        video.onloadedmetadata = () => resolve();
-      });
-
-      // ✅ autoplay 保險：有些環境會卡住
-      const kick = async () => { try { await video.play(); } catch (e) { } };
-      await kick();
-      window.addEventListener("pointerdown", kick, { once: true });
-
-      syncOverlaySize();
-      window.addEventListener("resize", syncOverlaySize);
-
-      if (!faceLandmarker) await initModel();
-
-      running = true;
-      hint.textContent = "相機已啟動，請對準框線後按下拍照";
-      loop();
     }
 
     function stopCamera() {
@@ -474,6 +703,7 @@
         if (SKIP_UPLOAD) {
           localStorage.removeItem("result");
           stopCamera();
+          // 移除時間戳記，讓瀏覽器記住相機權限
           location.href = "survery.html?demo=1";
           return;
         }
@@ -502,6 +732,7 @@
         localStorage.setItem("result", JSON.stringify(payload));
 
         stopCamera();
+        // 移除時間戳記，讓瀏覽器記住相機權限
         location.href = "survery.html";
       } catch (e) {
         console.error(e);
@@ -512,37 +743,11 @@
       }
     });
 
-    // -------- LIFF ----------
-    const LIFF_ID = '2008940492-WAo5zGIa';
-
-    async function initLiff() {
-      try {
-        await liff.init({ liffId: LIFF_ID });
-        if (!liff.isLoggedIn()) {
-          liff.login();
-        }
-        console.log("LIFF initialized");
-        return true;
-      } catch (err) {
-        console.error("LIFF init error:", err);
-        return false;
-      }
-    }
-
-    // 進頁面就啟動相機（不需要按兩次）
-    window.addEventListener("DOMContentLoaded", async () => {
-      // 偵測是否在 LINE 內
-      const isLine = /Line/i.test(navigator.userAgent);
-      if (isLine) {
-        const ok = await initLiff();
-        if (!ok) return;
-      }
-
-      openCamera().catch(e => {
-        console.error(e);
-        toast("此瀏覽器不支援相機功能");
-        hint.textContent = "此瀏覽器不支援相機功能";
-      });
+    // 進頁面就啟動相機（直接執行，不用 DOMContentLoaded）
+    openCamera().catch(e => {
+      console.error(e);
+      toast("無法開啟相機：請允許權限");
+      hint.textContent = "相機啟動失敗：請允許權限";
     });
 
     window.addEventListener("beforeunload", stopCamera);
