@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>分析</title>
   <link rel="stylesheet" href="assets/app.css" />
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     #cameraBox {
       width: 360px;
@@ -105,6 +106,21 @@
       box-shadow: 0 10px 24px rgba(255, 157, 184, .22), 0 26px 60px rgba(0, 0, 0, .25);
       cursor: pointer;
       z-index: 5;
+      opacity: 0.4;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.2s;
+    }
+
+    #captureBtn.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) scale(1.1);
+    }
+
+    #faceGuide.aligned {
+      border: 3px solid #4ade80;
+      animation: none;
+      background: rgba(74, 222, 128, 0.1);
     }
 
     #cameraBox.loading::after {
@@ -203,8 +219,18 @@
     let faceLandmarker = null;
     let running = false;
     let lastMetrics = null;
+    let isAligned = false; // 是否對準
 
     const SKIP_UPLOAD = true;
+
+    // 框線座標 (對應 CSS inset: 74px 44px 98px 44px)
+    // 相機寬度 360, 高度 480
+    const GUIDE = {
+      cx: 180, // 中心 X
+      cy: 228, // 中心 Y
+      w: 272,  // 寬度
+      h: 308   // 高度
+    };
 
     // =========================
     // cover 對齊：canvas 尺寸跟 cameraBox 一樣
@@ -256,7 +282,7 @@
       meshCtx.clearRect(0, 0, rect.width, rect.height);
 
       const landmarks = result.faceLandmarks?.[0];
-      if (!landmarks || !video.videoWidth || !video.videoHeight) return;
+      if (!landmarks || !video.videoWidth || !video.videoHeight) return [];
 
       const srcW = video.videoWidth;
       const srcH = video.videoHeight;
@@ -277,7 +303,7 @@
 
       const connections = FaceLandmarker.FACE_LANDMARKS_TESSELATION || [];
       meshCtx.lineWidth = 1;
-      meshCtx.strokeStyle = "rgba(255,255,255,.7)";
+      meshCtx.strokeStyle = isAligned ? "rgba(74, 222, 128, 0.8)" : "rgba(255,255,255,.7)";
       meshCtx.beginPath();
       for (const c of connections) {
         const a = c[0] ?? c.start;
@@ -290,12 +316,56 @@
         meshCtx.lineTo(p2.x, p2.y);
       }
       meshCtx.stroke();
+      return points; // 回傳給檢測 logic
+    }
+
+    function checkAlignment(points) {
+      if (!points || points.length === 0) return false;
+
+      // 取得臉部範圍
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      points.forEach(p => {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+      });
+
+      const faceW = maxX - minX;
+      const faceH = maxY - minY;
+      const faceCx = (minX + maxX) / 2;
+      const faceCy = (minY + maxY) / 2;
+
+      // 判斷邏輯：
+      // 1. 中心點偏差在 35px 內
+      // 2. 寬度比例在 0.7~1.1 之間
+      const dist = Math.sqrt(Math.pow(faceCx - GUIDE.cx, 2) + Math.pow(faceCy - GUIDE.cy, 2));
+      const wRatio = faceW / GUIDE.w;
+
+      const aligned = dist < 45 && wRatio > 0.65 && wRatio < 1.15;
+
+      const faceGuide = document.getElementById("faceGuide");
+      if (aligned) {
+        if (!isAligned) {
+          isAligned = true;
+          faceGuide.classList.add("aligned");
+          captureBtn.classList.add("active");
+          hint.textContent = "已對準，可以拍照了！";
+        }
+      } else {
+        if (isAligned) {
+          isAligned = false;
+          faceGuide.classList.remove("aligned");
+          captureBtn.classList.remove("active");
+          hint.textContent = "請將臉部移至框線內";
+        }
+      }
+      return aligned;
     }
 
     function loop() {
       if (!running) return;
 
-      // 影像還沒真正進來就先不算（避免 undefined.x）
       if (!video.videoWidth || !video.videoHeight) {
         requestAnimationFrame(loop);
         return;
@@ -304,10 +374,10 @@
       try {
         const now = performance.now();
         const result = faceLandmarker.detectForVideo(video, now);
-        drawEffect(result);
+        const points = drawEffect(result); // 修改 drawEffect 讓它回傳座標點
+        checkAlignment(points);
         lastMetrics = packMetrics(result);
       } catch (e) {
-        // ✅ 特效爆了也不要把整個相機搞死
         console.error("effect error:", e);
         meshCtx.clearRect(0, 0, meshCanvas.width, meshCanvas.height);
       }
@@ -442,11 +512,37 @@
       }
     });
 
+    // -------- LIFF ----------
+    const LIFF_ID = '2008940492-WAo5zGIa';
+
+    async function initLiff() {
+      try {
+        await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) {
+          liff.login();
+        }
+        console.log("LIFF initialized");
+        return true;
+      } catch (err) {
+        console.error("LIFF init error:", err);
+        return false;
+      }
+    }
+
     // 進頁面就啟動相機（不需要按兩次）
-    openCamera().catch(e => {
-      console.error(e);
-      toast("此瀏覽器不支援相機功能");
-      hint.textContent = "此瀏覽器不支援相機功能";
+    window.addEventListener("DOMContentLoaded", async () => {
+      // 偵測是否在 LINE 內
+      const isLine = /Line/i.test(navigator.userAgent);
+      if (isLine) {
+        const ok = await initLiff();
+        if (!ok) return;
+      }
+
+      openCamera().catch(e => {
+        console.error(e);
+        toast("此瀏覽器不支援相機功能");
+        hint.textContent = "此瀏覽器不支援相機功能";
+      });
     });
 
     window.addEventListener("beforeunload", stopCamera);
