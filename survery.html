@@ -74,50 +74,105 @@
 
       <div class="body">
         <form id="surveyForm">
+          <!-- 1. 年齡區間 -->
           <div class="q">
-            <label>1) 你的膚質偏向？</label>
+            <label>1. 您的年齡區間？</label>
             <div class="opts">
-              <label class="opt"><input type="radio" name="skinType" value="dry" required>乾性</label>
-              <label class="opt"><input type="radio" name="skinType" value="oily" required>油性</label>
-              <label class="opt"><input type="radio" name="skinType" value="combo" required>混合</label>
-              <label class="opt"><input type="radio" name="skinType" value="normal" required>中性</label>
+              <label class="opt"><input type="radio" name="age" value="under20" required>20歲以下</label>
+              <label class="opt"><input type="radio" name="age" value="20-30" required>20-30歲</label>
+              <label class="opt"><input type="radio" name="age" value="30-40" required>30-40歲</label>
+              <label class="opt"><input type="radio" name="age" value="over40" required>40歲以上</label>
             </div>
           </div>
 
+          <!-- 2. 膚況狀態 -->
           <div class="q">
-            <label>2) 今天睡眠狀態？</label>
+            <label>2. 清潔肌膚後30分鐘，膚況是？</label>
             <div class="opts">
-              <label class="opt"><input type="radio" name="sleep" value="good" required>充足</label>
-              <label class="opt"><input type="radio" name="sleep" value="ok" required>普通</label>
-              <label class="opt"><input type="radio" name="sleep" value="bad" required>不足</label>
+              <label class="opt"><input type="radio" name="skinCondition" value="dry" required>全臉乾燥緊繃脫皮</label>
+              <label class="opt"><input type="radio" name="skinCondition" value="oily" required>全臉出油泛油光</label>
+              <label class="opt"><input type="radio" name="skinCondition" value="combo" required>T字出油兩頰乾</label>
+              <label class="opt"><input type="radio" name="skinCondition" value="comfortable" required>全臉舒適</label>
             </div>
           </div>
 
+          <!-- 3. 敏感程度 -->
           <div class="q">
-            <label>3) 主要關心項目（可複選）</label>
+            <label>3. 您對外界刺激或新產品的敏感程度？</label>
             <div class="opts">
-              <label class="opt"><input type="checkbox" name="concerns" value="acne">痘痘/粉刺</label>
-              <label class="opt"><input type="checkbox" name="concerns" value="pores">毛孔</label>
-              <label class="opt"><input type="checkbox" name="concerns" value="dull">暗沉</label>
-              <label class="opt"><input type="checkbox" name="concerns" value="spots">斑點</label>
-              <label class="opt"><input type="checkbox" name="concerns" value="oil">出油</label>
-              <label class="opt"><input type="checkbox" name="concerns" value="dry">乾燥</label>
+              <label class="opt"><input type="radio" name="sensitivity" value="high" required>容易泛紅敏感</label>
+              <label class="opt"><input type="radio" name="sensitivity" value="medium" required>偶爾會但可接受</label>
+              <label class="opt"><input type="radio" name="sensitivity" value="low" required>幾乎沒有問題</label>
             </div>
           </div>
 
+          <!-- 4. 保養節奏 -->
           <div class="q">
-            <label>4) 是否有上妝/濾鏡？</label>
+            <label>4. 您更偏好哪種保養節奏？</label>
             <div class="opts">
-              <label class="opt"><input type="radio" name="makeup" value="no" required>沒有</label>
-              <label class="opt"><input type="radio" name="makeup" value="light" required>淡妝</label>
-              <label class="opt"><input type="radio" name="makeup" value="heavy" required>濃妝/濾鏡</label>
+              <label class="opt"><input type="radio" name="rhythm" value="complete" required>早晚完整一套</label>
+              <label class="opt"><input type="radio" name="rhythm" value="single" required>僅早或晚單一步驟</label>
+              <label class="opt"><input type="radio" name="rhythm" value="random" required>隨性不固定</label>
+            </div>
+          </div>
+
+          <!-- 5. 睡眠時數 -->
+          <div class="q">
+            <label>5. 最近一週的平均睡眠時數？</label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="sleepHours" value="less6" required>少於6小時</label>
+              <label class="opt"><input type="radio" name="sleepHours" value="6-7" required>6-7小時</label>
+              <label class="opt"><input type="radio" name="sleepHours" value="7-8" required>7-8小時</label>
+              <label class="opt"><input type="radio" name="sleepHours" value="over8" required>超過8小時</label>
+            </div>
+          </div>
+
+          <!-- 6. 壓力程度 -->
+          <div class="q">
+            <label>6. 最近覺得壓力大嗎？</label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="stress" value="none" required>幾乎沒有</label>
+              <label class="opt"><input type="radio" name="stress" value="sometimes" required>偶爾覺得有</label>
+              <label class="opt"><input type="radio" name="stress" value="often" required>經常覺得壓力大</label>
+            </div>
+          </div>
+
+          <!-- 7. 運動頻率 -->
+          <div class="q">
+            <label>7. 一週大約幾天有運動超過30分鐘？</label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="exercise" value="0" required>0天</label>
+              <label class="opt"><input type="radio" name="exercise" value="1-2" required>1-2天</label>
+              <label class="opt"><input type="radio" name="exercise" value="3-4" required>3-4天</label>
+              <label class="opt"><input type="radio" name="exercise" value="5-7" required>5-7天</label>
+            </div>
+          </div>
+
+          <!-- 8. 油炸頻率 (選填) -->
+          <div class="q">
+            <label>8. 一週油炸重油食物的頻率？（選填）</label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="friedFood" value="0-1">0-1次</label>
+              <label class="opt"><input type="radio" name="friedFood" value="2-3">2-3次</label>
+              <label class="opt"><input type="radio" name="friedFood" value="4-5">4-5次</label>
+              <label class="opt"><input type="radio" name="friedFood" value="6over">6次以上</label>
+            </div>
+          </div>
+
+          <!-- 9. 蔬果攝取 (選填) -->
+          <div class="q">
+            <label>9. 您每天蔬果攝取量？（選填）</label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="diet" value="balanced">很多均衡</label>
+              <label class="opt"><input type="radio" name="diet" value="low">一般少量</label>
+              <label class="opt"><input type="radio" name="diet" value="none">很少幾乎沒有</label>
             </div>
           </div>
 
           <div class="actions">
-            <button type="button" class="btn" onclick="location.href='index.html'">取消</button>
-            <button type="button" class="btn" onclick="location.href='result_new.html'">跳過</button>
-            <button type="submit" class="btn btn-primary">下一步：拍照</button>
+            <button type="button" class="btn" onclick="window.close() || history.back()">返回</button>
+            <button type="button" class="btn" onclick="location.href='result_new.html'">直接查看結果</button>
+            <button type="submit" class="btn btn-primary">完成分析</button>
           </div>
         </form>
       </div>
@@ -136,18 +191,23 @@
 
       const fd = new FormData(form);
       const survey = {
-        skinType: fd.get("skinType"),
-        sleep: fd.get("sleep"),
-        makeup: fd.get("makeup"),
-        concerns: fd.getAll("concerns"),
+        age: fd.get("age"),
+        skinCondition: fd.get("skinCondition"),
+        sensitivity: fd.get("sensitivity"),
+        rhythm: fd.get("rhythm"),
+        sleepHours: fd.get("sleepHours"),
+        stress: fd.get("stress"),
+        exercise: fd.get("exercise"),
+        friedFood: fd.get("friedFood"),
+        diet: fd.get("diet"),
         timestamp: new Date().toISOString()
       };
 
-      // 存在 localStorage，讓 analyze.html 拿得到
+      // 存在 localStorage，讓分析頁面拿得到
       localStorage.setItem("survey", JSON.stringify(survey));
 
-      toast("問卷已保存，準備拍照…");
-      setTimeout(() => location.href = "result_new.html", 450);
+      toast("問卷已完成，生成報告中…");
+      setTimeout(() => location.href = "result_new.html", 800);
     });
   </script>
 </body>
