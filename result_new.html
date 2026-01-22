@@ -750,12 +750,16 @@
             const targetIndex = sectionMap[sectionId] || 0;
             sections[targetIndex].scrollIntoView({ behavior: 'smooth' });
 
-            // 如果進入 B 區（智能膚況解析），重新繪製雷達圖
+            // 如果進入 B 區（智能膚況解析），繪製雷達圖
             if (sectionId === 'section-b') {
-                setTimeout(() => {
-                    const result = loadResult();
-                    renderRadar(result);
-                }, 200);
+                // 使用 requestAnimationFrame 確保 DOM 完全渲染後才繪製
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        console.log('🎨 Now drawing radar chart for section B...');
+                        const result = loadResult();
+                        renderRadar(result);
+                    }, 100);
+                });
             }
 
             // GA 追蹤
@@ -825,27 +829,30 @@
         }
 
         function renderRadar(result) {
-            const metrics = result?.metrics;
             const radar = document.getElementById('radar-chart');
-
-            console.log('renderRadar called', { metrics, radar });
 
             if (!radar) {
                 console.error('Canvas element not found!');
                 return;
             }
 
+            // 確保 canvas 有正確的尺寸
+            if (!radar.width || !radar.height) {
+                radar.width = 400;
+                radar.height = 300;
+            }
+
+            // 取得 metrics，如果沒有就用預設值
+            let metrics = result?.metrics;
             if (!metrics) {
                 console.warn('No metrics data, using default values');
-                // 使用預設值避免空白
-                const defaultMetrics = {
+                metrics = {
                     glow: 70,
                     complexion: 75,
                     blemish: 60,
                     oilBalance: 65,
                     evenness: 70
                 };
-                metrics = defaultMetrics;
             }
 
             const radarValues = {
@@ -856,13 +863,17 @@
                 "均勻": Number(metrics.evenness ?? 0)
             };
 
-            console.log('Drawing radar with values:', radarValues);
+            console.log('renderRadar called with:', {
+                canvasSize: { width: radar.width, height: radar.height },
+                metrics: metrics,
+                radarValues: radarValues
+            });
 
             try {
                 drawRadar(radar, radarValues);
-                console.log('Radar chart drawn successfully!');
+                console.log('✅ Radar chart drawn successfully!');
             } catch (e) {
-                console.error('Error drawing radar:', e);
+                console.error('❌ Error drawing radar:', e);
             }
         }
 
@@ -891,10 +902,8 @@
                 }
             }
 
-            // 延遲繪製雷達圖，確保 DOM 已渲染
-            setTimeout(() => {
-                renderRadar(result);
-            }, 100);
+            // ⚠️ 不在這裡繪製雷達圖，因為 detail-page 預設是隱藏的
+            // 雷達圖會在使用者點擊進入 B 區時才繪製（見 showDetail 函數）
 
             toast('資料載入完成');
         }
