@@ -93,27 +93,41 @@
     #captureBtn {
       position: absolute;
       left: 50%;
-      bottom: 16px;
+      bottom: 20px;
       transform: translateX(-50%);
-      width: 76px;
-      height: 76px;
+      width: 90px;
+      height: 90px;
       border-radius: 999px;
       background:
         radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .75), rgba(255, 255, 255, 0) 45%),
         linear-gradient(135deg, rgba(255, 157, 184, .95), rgba(242, 216, 140, .92));
-      border: 6px solid rgba(255, 255, 255, .92);
-      box-shadow: 0 10px 24px rgba(255, 157, 184, .22), 0 26px 60px rgba(0, 0, 0, .25);
+      border: 6px solid rgba(255, 255, 255, .95);
+      box-shadow: 0 10px 24px rgba(255, 157, 184, .3), 0 20px 50px rgba(0, 0, 0, .25);
       cursor: pointer;
       z-index: 5;
       opacity: 0.4;
       pointer-events: none;
-      transition: opacity 0.3s, transform 0.2s;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     #captureBtn.active {
       opacity: 1;
       pointer-events: auto;
-      transform: translateX(-50%) scale(1.1);
+      animation: capturePulse 2s infinite ease-in-out;
+    }
+
+    @keyframes capturePulse {
+
+      0%,
+      100% {
+        transform: translateX(-50%) scale(1);
+        box-shadow: 0 10px 24px rgba(255, 157, 184, .3), 0 20px 50px rgba(0, 0, 0, .25);
+      }
+
+      50% {
+        transform: translateX(-50%) scale(1.05);
+        box-shadow: 0 12px 28px rgba(255, 157, 184, .4), 0 24px 60px rgba(0, 0, 0, .3);
+      }
     }
 
     /* 多層級對齊狀態 - 提供更細緻的視覺回饋 */
@@ -198,6 +212,132 @@
         height: min(128vw, 560px);
       }
     }
+
+    /* ========== 照片預覽功能 ========== */
+    #previewContainer {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      z-index: 20;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    #previewContainer.show {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    #previewImg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+      /* 保持與預覽鏡像一致 */
+    }
+
+    /* 品質評分面板 */
+    #qualityPanel {
+      position: absolute;
+      bottom: 100px;
+      left: 14px;
+      right: 14px;
+      padding: 18px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+      z-index: 21;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .quality-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.95;
+    }
+
+    .quality-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .quality-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .quality-label {
+      font-size: 14px;
+      opacity: 0.85;
+    }
+
+    .quality-stars {
+      color: #fbbf24;
+      font-size: 16px;
+      letter-spacing: 2px;
+      font-family: monospace;
+    }
+
+    /* 預覽按鈕組合 */
+    .preview-btns {
+      position: absolute;
+      bottom: 20px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      gap: 12px;
+      z-index: 21;
+    }
+
+    .preview-btn {
+      flex: 1;
+      padding: 16px;
+      border-radius: 16px;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-retake {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-proceed {
+      background: linear-gradient(135deg, #4ade80, #10b981);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .preview-btn:active {
+      transform: scale(0.96);
+      filter: brightness(0.9);
+    }
   </style>
 </head>
 
@@ -223,6 +363,30 @@
       <div id="faceGuide"></div>
       <div id="captureBtn" aria-label="拍照" role="button"></div>
       <div id="loadingProgress"></div>
+
+      <!-- 照片預覽容器 -->
+      <div id="previewContainer">
+        <img id="previewImg" src="" alt="拍攝預覽">
+        <div id="qualityPanel">
+          <div class="quality-title">🔬 AI 品質分析</div>
+          <div class="quality-row">
+            <span class="quality-label">✨ 畫面清晰度</span>
+            <span class="quality-stars" id="star-blur">★★★★★</span>
+          </div>
+          <div class="quality-row">
+            <span class="quality-label">💡 光線充足度</span>
+            <span class="quality-stars" id="star-brightness">★★★★★</span>
+          </div>
+          <div class="quality-row">
+            <span class="quality-label">📏 臉部對齊度</span>
+            <span class="quality-stars" id="star-alignment">★★★★★</span>
+          </div>
+        </div>
+        <div class="preview-btns">
+          <button id="retakeBtn" class="preview-btn btn-retake">重拍</button>
+          <button id="usePhotoBtn" class="preview-btn btn-proceed">使用這張照片</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -254,7 +418,15 @@
       flash: document.getElementById("flash"),
       meshCanvas: document.getElementById("meshCanvas"),
       hint: document.getElementById("hint"),
-      faceGuide: document.getElementById("faceGuide")
+      faceGuide: document.getElementById("faceGuide"),
+      // 預覽相關元素
+      previewContainer: document.getElementById("previewContainer"),
+      previewImg: document.getElementById("previewImg"),
+      retakeBtn: document.getElementById("retakeBtn"),
+      usePhotoBtn: document.getElementById("usePhotoBtn"),
+      starBlur: document.getElementById("star-blur"),
+      starBrightness: document.getElementById("star-brightness"),
+      starAlignment: document.getElementById("star-alignment")
     };
 
     // 向後相容：保留原有變數名稱
@@ -284,6 +456,13 @@
     let lastFrameTime = 0;
     const FPS_LIMIT = 30; // 限制在 30 FPS 以節省電力
     const FRAME_INTERVAL = 1000 / FPS_LIMIT;
+
+    // 品質評分快取（用於預覽功能）
+    let latestScores = {
+      brightness: 0,
+      blur: 0,
+      alignment: 'poor'
+    };
 
     const SKIP_UPLOAD = true;
 
@@ -490,6 +669,11 @@
       const brightness = detectBrightness();
       const blurScore = detectBlur();
 
+      // 儲存品質評分供預覽使用
+      latestScores.brightness = brightness;
+      latestScores.blur = blurScore;
+      latestScores.alignment = 'poor'; // 預設為 poor，後續會更新
+
       // 品質閾值
       const MIN_BRIGHTNESS = 80;  // 最低亮度要求
       const MAX_BRIGHTNESS = 220; // 最高亮度（避免過曝）
@@ -522,6 +706,9 @@
         qualityIssue = '請將臉部移至框線內';
       }
 
+      // 更新對齊評分
+      latestScores.alignment = state;
+
       updateAlignmentUI(state, qualityIssue);
       return state;
     }
@@ -540,17 +727,30 @@
       DOM.faceGuide.classList.add(`aligned-${newState}`);
       currentAlignmentState = newState;
 
-      // 更新按鈕與提示文字
+      // 更新按鈕與提示文字（友善版本）
       if (newState === 'perfect') {
         DOM.captureBtn.classList.add('active');
-        DOM.hint.textContent = "✨ 完美對準！可以拍照了";
+        DOM.hint.textContent = "✨ 完美對準！保持姿勢拍照";
       } else if (newState === 'good') {
         DOM.captureBtn.classList.add('active');
         DOM.hint.textContent = "✓ 已對準，可以拍照了";
       } else {
         DOM.captureBtn.classList.remove('active');
-        // 顯示具體的品質問題
-        DOM.hint.textContent = qualityIssue || "請將臉部移至框線內";
+        // 顯示友善的品質問題提示
+        if (qualityIssue) {
+          // 將技術性訊息轉換為友善訊息
+          const friendlyMessages = {
+            '光線不足，請移至明亮處': '💡 請移到窗邊或開燈，讓臉部更明亮',
+            '光線過強，請避免強光': '☀️ 光線過強，請避免直射強光',
+            '畫面模糊，請保持穩定': '✨ 畫面模糊，請拿穩手機並保持臉部不動',
+            '請靠近一點': '📏 請將臉部移近一點，填滿框線',
+            '請稍微遠離': '📏 請稍微遠離一點',
+            '請將臉部移至框線內': '請將臉部移至框線內'
+          };
+          DOM.hint.textContent = friendlyMessages[qualityIssue] || qualityIssue;
+        } else {
+          DOM.hint.textContent = "請將臉部移至框線內";
+        }
       }
     }
 
@@ -686,27 +886,76 @@
       return blob;
     }
 
-    captureBtn.addEventListener("click", async () => {
+    /**
+     * 輔助函數：生成星星字串
+     */
+    function getStarString(count) {
+      return "★".repeat(count) + "☆".repeat(5 - count);
+    }
+
+    /**
+     * 顯示照片預覽與品質評分
+     */
+    function showPhotoPreview(dataUrl) {
+      // 停止相機以節省資源
+      stopCamera();
+
+      // 顯示預覽圖片
+      DOM.previewImg.src = dataUrl;
+
+      // 計算清晰度星星 (blur score 範圍約 100-500+)
+      let blurStars = 2;
+      if (latestScores.blur > 400) blurStars = 5;
+      else if (latestScores.blur > 250) blurStars = 4;
+      else if (latestScores.blur > 150) blurStars = 3;
+      DOM.starBlur.textContent = getStarString(blurStars);
+
+      // 計算亮度星星 (brightness 範圍約 80-220)
+      let brightStars = 2;
+      const b = latestScores.brightness;
+      if (b >= 120 && b <= 180) brightStars = 5;
+      else if (b >= 100 && b <= 200) brightStars = 4;
+      else if (b >= 80 && b <= 220) brightStars = 3;
+      DOM.starBrightness.textContent = getStarString(brightStars);
+
+      // 計算對齊星星
+      let alignStars = 2;
+      if (latestScores.alignment === 'perfect') alignStars = 5;
+      else if (latestScores.alignment === 'good') alignStars = 4;
+      DOM.starAlignment.textContent = getStarString(alignStars);
+
+      // 顯示預覽容器
+      DOM.previewContainer.classList.add("show");
+      DOM.hint.textContent = "請確認照片品質";
+    }
+
+    // 重拍按鈕
+    DOM.retakeBtn.onclick = () => {
+      DOM.previewContainer.classList.remove("show");
+      openCamera(); // 重新啟動相機
+    };
+
+    // 使用照片按鈕
+    DOM.usePhotoBtn.onclick = async () => {
       if (busy) return;
       busy = true;
+
       cameraBox.classList.add("loading");
+      DOM.hint.textContent = "正在處理照片...";
 
       try {
-        if (!stream) throw new Error("camera not started");
-
-        const blob = await getJpegBlob();
-        flashOnce();
-
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-        localStorage.setItem("user_photo", dataUrl);
+        const dataUrl = localStorage.getItem("user_photo");
+        if (!dataUrl) throw new Error("No photo found");
 
         if (SKIP_UPLOAD) {
           localStorage.removeItem("result");
-          stopCamera();
-          // 移除時間戳記，讓瀏覽器記住相機權限
           location.href = "survery.html?demo=1";
           return;
         }
+
+        // 如果需要上傳到後端，使用儲存的 blob
+        const blob = window._tempBlob;
+        if (!blob) throw new Error("No blob found");
 
         const form = new FormData();
         form.append("photo", blob, "capture.jpg");
@@ -731,12 +980,38 @@
         const payload = await res.json();
         localStorage.setItem("result", JSON.stringify(payload));
 
-        stopCamera();
-        // 移除時間戳記，讓瀏覽器記住相機權限
         location.href = "survery.html";
       } catch (e) {
         console.error(e);
-        toast("此瀏覽器不支援相機功能，請使用 Chrome 或 Safari");
+        toast("發生錯誤，請重試");
+        busy = false;
+        cameraBox.classList.remove("loading");
+      }
+    };
+
+    captureBtn.addEventListener("click", async () => {
+      if (busy) return;
+      busy = true;
+      cameraBox.classList.add("loading");
+
+      try {
+        if (!stream) throw new Error("camera not started");
+
+        const blob = await getJpegBlob();
+        flashOnce();
+
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+        localStorage.setItem("user_photo", dataUrl);
+
+        // 儲存 blob 供後續使用
+        window._tempBlob = blob;
+
+        // 顯示預覽而非直接跳轉
+        showPhotoPreview(dataUrl);
+
+      } catch (e) {
+        console.error(e);
+        toast("拍照失敗，請重試");
       } finally {
         cameraBox.classList.remove("loading");
         busy = false;
