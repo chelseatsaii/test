@@ -409,10 +409,7 @@
                     <p>AI 皮膚分析報告</p>
                 </div>
             </div>
-            <div style="display:flex; gap:8px;">
-                <button class="btn" onclick="location.href='analyze.html'">再分析</button>
-                <button class="btn" onclick="location.href='text.html'">回首頁</button>
-            </div>
+            <button class="btn" onclick="location.href='analyze.html'">再分析</button>
         </header>
 
         <div class="stage">
@@ -725,16 +722,13 @@
 
     <div class="toast" id="toast"></div>
 
-    <script>
+    <script type="module">
+        import { drawRadar, safeJsonFetch, saveResult, toast as appToast } from './assets/app.js';
         // ========================================
         // 工具函數
         // ========================================
         function toast(msg) {
-            const el = document.getElementById('toast');
-            if (!el) return;
-            el.textContent = msg;
-            el.classList.add('show');
-            setTimeout(() => el.classList.remove('show'), 2000);
+            appToast(msg);
         }
 
         // ========================================
@@ -810,19 +804,49 @@
         // ========================================
         // 載入資料
         // ========================================
-        function loadData() {
+        async function ensureResult() {
+            const cached = loadResult();
+            if (cached) return cached;
+
+            const res = await safeJsonFetch('./api/mock_result.json', {}, null);
+            if (res.ok && res.data) {
+                saveResult(res.data);
+                return res.data;
+            }
+            return null;
+        }
+
+        function renderRadar(result) {
+            const metrics = result?.metrics;
+            const radar = document.getElementById('radar-chart');
+            if (!radar || !metrics) return;
+
+            const radarValues = {
+                "Glow": Number(metrics.glow ?? 0),
+                "Complexion": Number(metrics.complexion ?? 0),
+                "Blemish": Number(metrics.blemish ?? 0),
+                "Oil Balance": Number(metrics.oilBalance ?? 0),
+                "Evenness": Number(metrics.evenness ?? 0)
+            };
+
+            drawRadar(radar, radarValues);
+        }
+
+        async function loadData() {
             // 從 localStorage 或 API 載入資料
-            const result = loadResult();
+            const result = await ensureResult();
 
             if (result && result.overall) {
                 // 更新 A 區分數
-                const scoreEl = document.getElementById('overview-score');
+                const scoreEl = document.getElementById('overview-score-a');
                 if (scoreEl) {
                     scoreEl.textContent = result.overall;
                 }
             }
 
             // 載入使用者照片
+            renderRadar(result);
+
             const userPhoto = localStorage.getItem('user_photo');
             if (userPhoto) {
                 const photoEl = document.getElementById('user-photo-a');
@@ -862,6 +886,9 @@
 
         // 頁面載入時執行
         window.addEventListener('DOMContentLoaded', loadData);
+        window.showDetail = showDetail;
+        window.backToOverview = backToOverview;
+        window.saveToLine = saveToLine;
     </script>
 </body>
 
