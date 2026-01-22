@@ -2589,26 +2589,26 @@
       function setStepAFromMetrics(score100) {
         const score10 = toScore10(score100);
 
-      const aScore = document.getElementById("aScore");
-      const aStatusText = document.getElementById("aStatusText");
-      const aHintText = document.getElementById("aHintText");
+        const aScore = document.getElementById("aScore");
+        const aStatusText = document.getElementById("aStatusText");
+        const aHintText = document.getElementById("aHintText");
 
-      if (aScore) aScore.textContent = score10.toFixed(1);
+        if (aScore) aScore.textContent = score10.toFixed(1);
 
-      let status = "狀態不錯";
-      if (score10 >= 8.5) status = "今天狀態極佳";
-      else if (score10 >= 7.0) status = "今天狀態良好";
-      else if (score10 >= 6.0) status = "今天略疲憊";
-      else status = "今天狀態不佳";
-      if (aStatusText) aStatusText.textContent = status;
+        let status = "狀態不錯";
+        if (score10 >= 8.5) status = "今天狀態極佳";
+        else if (score10 >= 7.0) status = "今天狀態良好";
+        else if (score10 >= 6.0) status = "今天略疲憊";
+        else status = "今天狀態不佳";
+        if (aStatusText) aStatusText.textContent = status;
 
-      if (aHintText) {
-        aHintText.textContent =
-          score10 < 6.0
-            ? "好消息：氣色可在 5 分鐘內改善！"
-            : "維持住！做 2–3 分鐘按摩會更亮。";
+        if (aHintText) {
+          aHintText.textContent =
+            score10 < 6.0
+              ? "好消息：氣色可在 5 分鐘內改善！"
+              : "維持住！做 2–3 分鐘按摩會更亮。";
+        }
       }
-    }
 
     function loadUserPhoto() {
       const img = document.getElementById("aUserPhoto");
@@ -2642,7 +2642,7 @@
     document.getElementById("timestampChip").textContent = ts.toLocaleString();
 
       setStepAFromMetrics(aScore100);
-    loadUserPhoto();
+      loadUserPhoto();
 
     function drawRadar(canvas, values, labels) {
       if (!canvas) return;
@@ -2744,17 +2744,21 @@
       const bScores = bKeys.map((k, i) => getBScore(k, bLabels[i], 5));
       const bRadarValues = bScores.map(v => Math.max(0, Math.min(10, v)) * 10);
 
-      const radar = document.getElementById("radar");
-      if (radar) drawRadar(radar, radarValues, radarLabels);
+      const renderRadars = () => {
+        const radar = document.getElementById("radar");
+        if (radar) drawRadar(radar, radarValues, radarLabels);
 
-      const radarA = document.getElementById("radarA");
-      if (radarA) drawRadar(radarA, radarValues, radarLabels);
+        const radarA = document.getElementById("radarA");
+        if (radarA) drawRadar(radarA, radarValues, radarLabels);
 
-      const radarB = document.getElementById("radarB");
-      if (radarB) drawRadar(radarB, bRadarValues, bLabels);
+        const radarB = document.getElementById("radarB");
+        if (radarB) drawRadar(radarB, bRadarValues, bLabels);
 
-      drawRadar(document.getElementById("radar"), radarValues, radarLabels);
-      drawRadar(document.getElementById("detailRadar"), radarValues, radarLabels);
+        drawRadar(document.getElementById("radar"), radarValues, radarLabels);
+        drawRadar(document.getElementById("detailRadar"), radarValues, radarLabels);
+      };
+
+      renderRadars();
 
       const bTop2 = document.getElementById("bTop2");
       const topPairs = bScores
@@ -2843,6 +2847,7 @@
       outE.classList.remove("visible");
       setTimeout(() => {
         inE.classList.add("visible");
+        renderRadars();
         window.scrollTo({ top: 0, behavior: "smooth" });
       }, 120);
     };
