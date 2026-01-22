@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雷達圖測試</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            color: #333;
+        }
+        canvas {
+            display: block;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 12px;
+        }
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .info {
+            padding: 12px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .error {
+            padding: 12px;
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>雷達圖測試頁面</h1>
+
+        <div class="test-section">
+            <h2>測試 1: 使用 assets/app.js 的 drawRadar</h2>
+            <canvas id="radar1" width="400" height="300"></canvas>
+            <button onclick="testRadar1()">繪製雷達圖</button>
+            <div id="result1"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>測試 2: 使用測試數據</h2>
+            <canvas id="radar2" width="400" height="300"></canvas>
+            <button onclick="testRadar2()">使用測試數據繪製</button>
+            <div id="result2"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>測試 3: 檢查 localStorage 數據</h2>
+            <button onclick="checkLocalStorage()">檢查 localStorage</button>
+            <pre id="storage-data" style="background: #f5f5f5; padding: 15px; border-radius: 8px; overflow-x: auto;"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import { drawRadar } from './assets/app.js';
+
+        window.testRadar1 = function() {
+            const canvas = document.getElementById('radar1');
+            const resultDiv = document.getElementById('result1');
+
+            try {
+                const testData = {
+                    "光澤": 72,
+                    "氣色": 80,
+                    "瑕疵": 64,
+                    "油水平衡": 70,
+                    "均勻度": 75
+                };
+
+                drawRadar(canvas, testData);
+                resultDiv.innerHTML = '<div class="info">✅ 雷達圖繪製成功！</div>';
+            } catch (e) {
+                resultDiv.innerHTML = `<div class="error">❌ 錯誤: ${e.message}</div>`;
+                console.error(e);
+            }
+        };
+
+        window.testRadar2 = function() {
+            const canvas = document.getElementById('radar2');
+            const resultDiv = document.getElementById('result2');
+
+            try {
+                const testData = {
+                    "Glow": 85,
+                    "Complexion": 90,
+                    "Blemish": 45,
+                    "Oil Balance": 60,
+                    "Evenness": 78
+                };
+
+                drawRadar(canvas, testData);
+                resultDiv.innerHTML = '<div class="info">✅ 雷達圖繪製成功！使用英文標籤</div>';
+            } catch (e) {
+                resultDiv.innerHTML = `<div class="error">❌ 錯誤: ${e.message}</div>`;
+                console.error(e);
+            }
+        };
+
+        window.checkLocalStorage = function() {
+            const resultDiv = document.getElementById('storage-data');
+
+            const keys = ['result', 'ai_result', 'analysis_result', 'payload', 'survey', 'user_photo'];
+            let output = '=== localStorage 內容 ===\n\n';
+
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        output += `${key}:\n${JSON.stringify(parsed, null, 2)}\n\n`;
+                    } catch {
+                        output += `${key}: ${value.substring(0, 100)}...\n\n`;
+                    }
+                } else {
+                    output += `${key}: (不存在)\n\n`;
+                }
+            });
+
+            resultDiv.textContent = output;
+        };
+
+        // 頁面載入時自動測試
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('測試頁面已載入');
+            testRadar1();
+        });
+    </script>
+</body>
+</html>
