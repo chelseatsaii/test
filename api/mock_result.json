@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-01-22T08:00:00Z",
+  "overall": 78,
+  "metrics": {
+    "glow": 72,
+    "complexion": 80,
+    "blemish": 64,
+    "oilBalance": 70,
+    "evenness": 75
+  },
+  "a_score": 84,
+  "b_scores": {
+    "darkCircles": 7.8,
+    "acne": 6.1,
+    "comedones": 5.4,
+    "wrinkles": 4.2,
+    "spots": 6.9
+  },
+  "c_tips": [
+    "Hydrate earlier in the day and keep the routine consistent for 7 days.",
+    "Add protein at breakfast and reduce late-night sugar spikes.",
+    "Keep sun protection stable to avoid redness and unevenness swings."
+  ],
+  "products": [
+    {
+      "name": "Calm Balance Serum",
+      "desc": "Lightweight support for redness and uneven texture.",
+      "tag": "Soothing",
+      "url": "#",
+      "image": "assets/background.jpg"
+    },
+    {
+      "name": "Barrier Repair Cream",
+      "desc": "Supports moisture retention and reduces dryness.",
+      "tag": "Barrier",
+      "url": "#",
+      "image": "assets/background.jpg"
+    },
+    {
+      "name": "Daily UV Shield",
+      "desc": "Basic daily UV care to stabilize complexion.",
+      "tag": "UV",
+      "url": "#",
+      "image": "assets/background.jpg"
+    }
+  ]
+}

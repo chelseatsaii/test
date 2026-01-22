@@ -399,6 +399,7 @@
       FaceLandmarker,
       FilesetResolver
     } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+    import { CONFIG } from "./js/config.js";
 
     // -------- toast ----------
     const toastEl = document.getElementById("toast");
@@ -464,7 +465,9 @@
       alignment: 'poor'
     };
 
-    const SKIP_UPLOAD = true;
+    const SKIP_UPLOAD = (typeof CONFIG === "object" && CONFIG !== null && "SKIP_UPLOAD" in CONFIG)
+      ? CONFIG.SKIP_UPLOAD
+      : true;
 
     // 框線座標 (對應 CSS inset: 74px 44px 98px 44px)
     // 相機寬度 360, 高度 480
@@ -951,7 +954,7 @@
 
         if (SKIP_UPLOAD) {
           localStorage.removeItem("result");
-          location.href = "survery.html?demo=1";
+          location.href = "survery_new.html?demo=1";
           return;
         }
 
@@ -982,7 +985,7 @@
         const payload = await res.json();
         localStorage.setItem("result", JSON.stringify(payload));
 
-        location.href = "survery.html";
+        location.href = "survery_new.html";
       } catch (e) {
         console.error(e);
         toast("發生錯誤，請重試");

@@ -1430,29 +1430,31 @@
                 <canvas id="radarB" width="520" height="360"></canvas>
               </div>
 
-              <div class="abnormalItem">
-                <div><b>異常目標 A：發炎痘痘</b></div>
-                <div class="mutedText">嚴重指數：6.8 (High) / T 字部位</div>
+              <div class="mutedText" id="bTop2" style="margin-top:10px;"></div>
+
+              <div class="abnormalItem" data-b-key="darkCircles">
+                <div><b class="abnormalTitle">異常目標：黑眼圈</b></div>
+                <div class="mutedText abnormalDetail">嚴重指數：--</div>
               </div>
 
-              <div class="abnormalItem">
-                <div><b>異常目標 B：動態細紋</b></div>
-                <div class="mutedText">嚴重指數：6.0 (Med) / 眼尾魚尾紋</div>
+              <div class="abnormalItem" data-b-key="acne">
+                <div><b class="abnormalTitle">異常目標：痘痘</b></div>
+                <div class="mutedText abnormalDetail">嚴重指數：--</div>
               </div>
 
-              <div class="abnormalItem">
-                <div><b>異常目標 C：毛孔粗大</b></div>
-                <div class="mutedText">嚴重指數：5.6 (Med) / 鼻翼兩側</div>
+              <div class="abnormalItem" data-b-key="comedones">
+                <div><b class="abnormalTitle">異常目標：粉刺</b></div>
+                <div class="mutedText abnormalDetail">嚴重指數：--</div>
               </div>
 
-              <div class="abnormalItem">
-                <div><b>異常目標 D：暗沉</b></div>
-                <div class="mutedText">嚴重指數：5.2 (Med) / 額頭與兩頰</div>
+              <div class="abnormalItem" data-b-key="wrinkles">
+                <div><b class="abnormalTitle">異常目標：細紋</b></div>
+                <div class="mutedText abnormalDetail">嚴重指數：--</div>
               </div>
 
-              <div class="abnormalItem">
-                <div><b>異常目標 E：泛紅</b></div>
-                <div class="mutedText">嚴重指數：4.8 (Low) / 兩頰區域</div>
+              <div class="abnormalItem" data-b-key="spots">
+                <div><b class="abnormalTitle">異常目標：斑</b></div>
+                <div class="mutedText abnormalDetail">嚴重指數：--</div>
               </div>
             </div>
 
@@ -2527,50 +2529,65 @@
       };
     }
 
-    const url = new URL(location.href);
-    const forceDemo =
-      url.searchParams.get("demo") === "1" ||
-      localStorage.getItem("force_demo") === "1" ||
-      location.hash.includes("demo=1");
-    if (forceDemo) localStorage.removeItem("force_demo");
-
-    let payload = forceDemo ? null : loadResult();
-    if (!payload) {
-      payload = getDemoPayload();
-      toast("已載入測試數值（demo）");
+    async function fetchMockPayload() {
+      try {
+        const res = await fetch("./api/mock_result.json", { cache: "no-store" });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return (data && typeof data === "object") ? data : null;
+      } catch (e) {
+        return null;
+      }
     }
 
-    const m = payload.metrics || {};
-    const toNum = (v, fallback = 0) => {
-      const n = Number(v);
-      return Number.isFinite(n) ? n : fallback;
-    };
+    async function initResult() {
+      const url = new URL(location.href);
+      const forceDemo =
+        url.searchParams.get("demo") === "1" ||
+        localStorage.getItem("force_demo") === "1" ||
+        location.hash.includes("demo=1");
+      if (forceDemo) localStorage.removeItem("force_demo");
 
-    const metrics = {
-      glow: toNum(m.glow ?? m.光澤, 72),
-      complexion: toNum(m.complexion ?? m.氣色, 78),
-      blemish: toNum(m.blemish ?? m.瑕疵, 64),
-      oilBalance: toNum(m.oilBalance ?? m.油水平衡, 70),
-      evenness: toNum(m.evenness ?? m.均勻度, 75),
-    };
+      let payload = forceDemo ? null : loadResult();
+      if (!payload) payload = await fetchMockPayload();
+      if (!payload) {
+        payload = getDemoPayload();
+        toast("已載入測試數值（demo）");
+      }
 
-    const overall = toNum(payload.overall, Math.round(
-      (metrics.glow + metrics.complexion + metrics.blemish + metrics.oilBalance + metrics.evenness) / 5
-    ));
+      const m = payload.metrics || {};
+      const toNum = (v, fallback = 0) => {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : fallback;
+      };
 
-    const quality =
-      overall >= 85 ? "狀態極佳" :
-        overall >= 75 ? "整體良好" :
-          overall >= 60 ? "可再提升" : "需要加強";
+      const metrics = {
+        glow: toNum(m.glow ?? m.光澤, 72),
+        complexion: toNum(m.complexion ?? m.氣色, 78),
+        blemish: toNum(m.blemish ?? m.瑕疵, 64),
+        oilBalance: toNum(m.oilBalance ?? m.油水平衡, 70),
+        evenness: toNum(m.evenness ?? m.均勻度, 75),
+      };
 
-    function toScore10(score100) {
-      const n = Number(score100);
-      if (!Number.isFinite(n)) return 0;
-      return Math.round((n / 10) * 10) / 10;
-    }
+      const aScore100 = toNum(payload.a_score ?? payload.aScore, metrics.complexion);
 
-    function setStepAFromMetrics() {
-      const score10 = toScore10(metrics.complexion);
+      const overall = toNum(payload.overall, Math.round(
+        (metrics.glow + metrics.complexion + metrics.blemish + metrics.oilBalance + metrics.evenness) / 5
+      ));
+
+      const quality =
+        overall >= 85 ? "狀態極佳" :
+          overall >= 75 ? "整體良好" :
+            overall >= 60 ? "可再提升" : "需要加強";
+
+      function toScore10(score100) {
+        const n = Number(score100);
+        if (!Number.isFinite(n)) return 0;
+        return Math.round((n / 10) * 10) / 10;
+      }
+
+      function setStepAFromMetrics(score100) {
+        const score10 = toScore10(score100);
 
       const aScore = document.getElementById("aScore");
       const aStatusText = document.getElementById("aStatusText");
@@ -2624,7 +2641,7 @@
     const ts = payload.timestamp ? new Date(payload.timestamp) : new Date();
     document.getElementById("timestampChip").textContent = ts.toLocaleString();
 
-    setStepAFromMetrics();
+      setStepAFromMetrics(aScore100);
     loadUserPhoto();
 
     function drawRadar(canvas, values, labels) {
@@ -2704,44 +2721,85 @@
       }
     }
 
-    const radarValues = [metrics.glow, metrics.complexion, metrics.blemish, metrics.oilBalance, metrics.evenness];
-    const radarLabels = ["光澤", "氣色", "瑕疵", "油水平衡", "均勻度"];
+      const radarValues = [metrics.glow, metrics.complexion, metrics.blemish, metrics.oilBalance, metrics.evenness];
+      const radarLabels = ["光澤", "氣色", "瑕疵", "油水平衡", "均勻度"];
 
-    const radar = document.getElementById("radar");
-    if (radar) drawRadar(radar, radarValues, radarLabels);
+      const bScoresRaw = payload.b_scores ?? payload.bScores ?? {};
+      const bLabels = ["黑眼圈", "痘痘", "粉刺", "細紋", "斑"];
+      const bKeys = ["darkCircles", "acne", "comedones", "wrinkles", "spots"];
+      const labelMap = {
+        darkCircles: "黑眼圈",
+        acne: "痘痘",
+        comedones: "粉刺",
+        wrinkles: "細紋",
+        spots: "斑"
+      };
 
-    const radarA = document.getElementById("radarA");
-    if (radarA) drawRadar(radarA, radarValues, radarLabels);
+      const getBScore = (key, label, fallback = 5) => {
+        const raw = bScoresRaw[key] ?? bScoresRaw[label];
+        const n = Number(raw);
+        return Number.isFinite(n) ? n : fallback;
+      };
 
-    const radarB = document.getElementById("radarB");
-    if (radarB) drawRadar(radarB, radarValues, radarLabels);
+      const bScores = bKeys.map((k, i) => getBScore(k, bLabels[i], 5));
+      const bRadarValues = bScores.map(v => Math.max(0, Math.min(10, v)) * 10);
 
-    drawRadar(document.getElementById("radar"), radarValues, radarLabels);
-    drawRadar(document.getElementById("detailRadar"), radarValues, radarLabels);
+      const radar = document.getElementById("radar");
+      if (radar) drawRadar(radar, radarValues, radarLabels);
 
-    const bars = document.getElementById("bars");
-    const barDefs = [
-      ["光澤", metrics.glow],
-      ["氣色", metrics.complexion],
-      ["瑕疵", metrics.blemish],
-      ["油水平衡", metrics.oilBalance],
-      ["均勻度", metrics.evenness],
-    ];
+      const radarA = document.getElementById("radarA");
+      if (radarA) drawRadar(radarA, radarValues, radarLabels);
 
-    bars.innerHTML = "";
-    for (const [label, val] of barDefs) {
-      const v = Math.max(0, Math.min(100, Number(val)));
-      const row = document.createElement("div");
-      row.className = "barRow";
-      row.innerHTML = `
-        <div class="barLabel">${label}</div>
-        <div class="barTrack"><div class="barFill" style="width:${v}%"></div></div>
-        <div class="barVal">${v}</div>
-      `;
-      bars.appendChild(row);
-    }
+      const radarB = document.getElementById("radarB");
+      if (radarB) drawRadar(radarB, bRadarValues, bLabels);
 
-    const summaryCards = document.getElementById("summaryCards");
+      drawRadar(document.getElementById("radar"), radarValues, radarLabels);
+      drawRadar(document.getElementById("detailRadar"), radarValues, radarLabels);
+
+      const bTop2 = document.getElementById("bTop2");
+      const topPairs = bScores
+        .map((score, i) => ({ label: bLabels[i], score }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 2);
+      if (bTop2) {
+        const names = topPairs.map(t => t.label).join("、");
+        bTop2.textContent = names ? `最嚴重：${names}` : "";
+      }
+
+      document.querySelectorAll("[data-b-key]").forEach((item) => {
+        const key = item.dataset.bKey;
+        const label = labelMap[key] || key;
+        const score = getBScore(key, label, 5);
+        const level = score >= 7 ? "High" : (score >= 5 ? "Med" : "Low");
+        const titleEl = item.querySelector(".abnormalTitle");
+        const detailEl = item.querySelector(".abnormalDetail");
+        if (titleEl) titleEl.textContent = `異常目標：${label}`;
+        if (detailEl) detailEl.textContent = `嚴重指數：${score.toFixed(1)} (${level})`;
+      });
+
+      const bars = document.getElementById("bars");
+      const barDefs = [
+        ["光澤", metrics.glow],
+        ["氣色", metrics.complexion],
+        ["瑕疵", metrics.blemish],
+        ["油水平衡", metrics.oilBalance],
+        ["均勻度", metrics.evenness],
+      ];
+
+      bars.innerHTML = "";
+      for (const [label, val] of barDefs) {
+        const v = Math.max(0, Math.min(100, Number(val)));
+        const row = document.createElement("div");
+        row.className = "barRow";
+        row.innerHTML = `
+          <div class="barLabel">${label}</div>
+          <div class="barTrack"><div class="barFill" style="width:${v}%"></div></div>
+          <div class="barVal">${v}</div>
+        `;
+        bars.appendChild(row);
+      }
+
+      const summaryCards = document.getElementById("summaryCards");
 
     function addCard(title, val, hint) {
       const div = document.createElement("div");
@@ -2796,11 +2854,14 @@
       if (!arr.includes(txt)) arr.push(txt);
     }
 
-    const tipsBase = Array.isArray(payload.tips) && payload.tips.length
-      ? payload.tips.filter(Boolean)
-      : [];
+      const tipsBase = Array.isArray(payload.tips) && payload.tips.length
+        ? payload.tips.filter(Boolean)
+        : [];
+      const surveyTips = Array.isArray(payload.c_tips ?? payload.cTips)
+        ? (payload.c_tips ?? payload.cTips).filter(Boolean)
+        : [];
 
-    const tips = tipsBase.slice();
+      const tips = tipsBase.concat(surveyTips);
 
     if (metrics.complexion < 60) {
       uniqPush(tips, "氣色偏低：自然光側光重拍，並把睡眠拉回（提早 30–60 分鐘上床最有效）。");
@@ -2873,7 +2934,10 @@
       });
     }
 
-    const backendProducts = Array.isArray(payload.products) ? payload.products.filter(Boolean) : [];
+      const rawProducts = Array.isArray(payload.d_products)
+        ? payload.d_products
+        : (Array.isArray(payload.products) ? payload.products : []);
+      const backendProducts = rawProducts.filter(Boolean);
     const TARGET = 100;
 
     const ALL_PRODUCTS =
@@ -3003,20 +3067,23 @@
 
     ioX.observe(sentinelX);
 
-    if (productListDetail) {
-      const ioDetail = new IntersectionObserver((entries) => {
-        const e = entries[0];
-        if (e.isIntersecting) {
-          loadMoreDetail();
-        }
-      }, {
-        root: productListDetail,
-        rootMargin: "0px 420px 0px 0px",
-        threshold: 0
-      });
+      if (productListDetail) {
+        const ioDetail = new IntersectionObserver((entries) => {
+          const e = entries[0];
+          if (e.isIntersecting) {
+            loadMoreDetail();
+          }
+        }, {
+          root: productListDetail,
+          rootMargin: "0px 420px 0px 0px",
+          threshold: 0
+        });
 
-      ioDetail.observe(sentinelDetail);
+        ioDetail.observe(sentinelDetail);
+      }
     }
+
+    initResult();
   </script>
 
   <script type="module">
