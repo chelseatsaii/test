@@ -1398,6 +1398,21 @@
                 <div style="font-size:34px; font-weight:900;" id="aOverallNum">--</div>
               </div>
 
+              <div class="item largeItem">
+                <div><b>本次氣色總評（80字內）</b></div>
+                <div class="mutedText" id="aSummary">--</div>
+              </div>
+
+              <div class="item">
+                <div><b>最嚴重問題</b></div>
+                <div class="mutedText" id="aIssue">--</div>
+              </div>
+
+              <div class="item">
+                <div><b>建議動作</b></div>
+                <div id="aActions"></div>
+              </div>
+
               <div class="item">
                 <div><b>Step 1：臉部按摩 (2分鐘)</b></div>
                 <div class="demoBox">示意教學動畫區（可換成 GIF / MP4）</div>
@@ -2610,10 +2625,10 @@
         }
       }
 
-    function loadUserPhoto() {
-      const img = document.getElementById("aUserPhoto");
-      const block = document.getElementById("aPhotoBlock");
-      if (!img || !block) return;
+      function loadUserPhoto() {
+        const img = document.getElementById("aUserPhoto");
+        const block = document.getElementById("aPhotoBlock");
+        if (!img || !block) return;
 
       const fromPayload = payload.photo || payload.image || payload.photoDataUrl;
       const fromLS =
@@ -2629,7 +2644,45 @@
       } else {
         block.style.display = "none";
       }
-    }
+      }
+
+      const aSummaryEl = document.getElementById("aSummary");
+      const aIssueEl = document.getElementById("aIssue");
+      const aActionsEl = document.getElementById("aActions");
+
+      const aSummary = (payload.a_summary ?? payload.aSummary ?? "").toString().trim();
+      if (aSummaryEl) {
+        aSummaryEl.textContent = aSummary || "本次氣色整體穩定，眼周略顯疲憊，建議加強放鬆與提亮。";
+      }
+
+      const aIssue = (payload.a_issue ?? payload.aIssue ?? "").toString().trim();
+      const aIssueDetail = (payload.a_issue_detail ?? payload.aIssueDetail ?? "").toString().trim();
+      if (aIssueEl) {
+        aIssueEl.textContent = aIssue
+          ? (aIssueDetail ? `${aIssue}（${aIssueDetail}）` : aIssue)
+          : "尚未判定";
+      }
+
+      if (aActionsEl) {
+        const actions = Array.isArray(payload.a_actions ?? payload.aActions)
+          ? (payload.a_actions ?? payload.aActions).filter(Boolean)
+          : [];
+        aActionsEl.innerHTML = "";
+        actions.forEach((a) => {
+          const name = (a.name ?? "").toString().trim() || "建議動作";
+          const desc = (a.desc ?? "").toString().trim();
+          const effect = (a.effect ?? "").toString().trim();
+          const card = document.createElement("div");
+          card.className = "item";
+          card.innerHTML = `
+            <div><b>${name}</b></div>
+            <div class="mutedText">${desc || "建議先做 1–2 分鐘，觀察臉部放鬆感。"}<\/div>
+            <div class="demoBox">GIF 佔位（之後放動作示意）<\/div>
+            <div class="mutedText">效果：${effect || "提升放鬆感與循環"}<\/div>
+          `;
+          aActionsEl.appendChild(card);
+        });
+      }
 
     document.getElementById("overallNum").textContent = overall;
     const scoreTag = document.getElementById("scoreTag");
