@@ -2759,6 +2759,9 @@
       };
 
       renderRadars();
+      requestAnimationFrame(renderRadars);
+      setTimeout(renderRadars, 80);
+      window.addEventListener("resize", renderRadars);
 
       const bTop2 = document.getElementById("bTop2");
       const topPairs = bScores
@@ -2767,7 +2770,7 @@
         .slice(0, 2);
       if (bTop2) {
         const names = topPairs.map(t => t.label).join("、");
-        bTop2.textContent = names ? `最嚴重：${names}` : "";
+        bTop2.textContent = names ? `最嚴重：${names}` : "B 區資料載入中…";
       }
 
       document.querySelectorAll("[data-b-key]").forEach((item) => {
