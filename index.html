@@ -2762,6 +2762,7 @@
       requestAnimationFrame(renderRadars);
       setTimeout(renderRadars, 80);
       window.addEventListener("resize", renderRadars);
+      window.renderResultRadars = renderRadars;
 
       const bTop2 = document.getElementById("bTop2");
       const topPairs = bScores
@@ -3117,6 +3118,11 @@
         window.startAnalyzePage();
       } else if (window.stopAnalyzePage) {
         window.stopAnalyzePage();
+      }
+
+      if (page === "result" && typeof window.renderResultRadars === "function") {
+        requestAnimationFrame(window.renderResultRadars);
+        setTimeout(window.renderResultRadars, 80);
       }
     }
 
