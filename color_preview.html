@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雷達圖配色預覽</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            font-size: 32px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.2);
+        }
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .card p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+        .colors {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .color-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 12px;
+            color: #666;
+        }
+        .color-box {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 雷達圖配色方案預覽</h1>
+
+        <div class="grid">
+            <!-- 方案 1 -->
+            <div class="card">
+                <h2>方案 1：藍紫漸層</h2>
+                <p>專業科技感</p>
+                <canvas id="canvas1" width="400" height="300"></canvas>
+                <div class="colors">
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(139, 92, 246, .25);"></div>
+                        框框/軸線
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(124, 58, 237, .9);"></div>
+                        數據線條
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(167, 139, 250, .2);"></div>
+                        數據填充
+                    </div>
+                </div>
+            </div>
+
+            <!-- 方案 2 -->
+            <div class="card">
+                <h2>方案 2：薄荷藍綠</h2>
+                <p>清新療癒感</p>
+                <canvas id="canvas2" width="400" height="300"></canvas>
+                <div class="colors">
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(56, 189, 248, .25);"></div>
+                        框框/軸線
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(14, 165, 233, .9);"></div>
+                        數據線條
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(103, 232, 249, .2);"></div>
+                        數據填充
+                    </div>
+                </div>
+            </div>
+
+            <!-- 方案 3 -->
+            <div class="card">
+                <h2>方案 3：珊瑚粉橘</h2>
+                <p>溫暖活力感</p>
+                <canvas id="canvas3" width="400" height="300"></canvas>
+                <div class="colors">
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(251, 146, 60, .25);"></div>
+                        框框/軸線
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(249, 115, 22, .95);"></div>
+                        數據線條
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(254, 215, 170, .25);"></div>
+                        數據填充
+                    </div>
+                </div>
+            </div>
+
+            <!-- 方案 4 -->
+            <div class="card">
+                <h2>方案 4：玫瑰粉</h2>
+                <p>優雅浪漫感</p>
+                <canvas id="canvas4" width="400" height="300"></canvas>
+                <div class="colors">
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(244, 114, 182, .25);"></div>
+                        框框/軸線
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(236, 72, 153, .9);"></div>
+                        數據線條
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(249, 168, 212, .2);"></div>
+                        數據填充
+                    </div>
+                </div>
+            </div>
+
+            <!-- 方案 5 -->
+            <div class="card">
+                <h2>方案 5：翠綠</h2>
+                <p>自然生機感</p>
+                <canvas id="canvas5" width="400" height="300"></canvas>
+                <div class="colors">
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(52, 211, 153, .25);"></div>
+                        框框/軸線
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(16, 185, 129, .9);"></div>
+                        數據線條
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: rgba(110, 231, 183, .2);"></div>
+                        數據填充
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 測試數據
+        const testData = {
+            "光澤": 75,
+            "氣色": 82,
+            "瑕疵": 65,
+            "油水": 70,
+            "均勻": 78
+        };
+
+        // 配色方案
+        const colorSchemes = [
+            {
+                grid: "rgba(139, 92, 246, .25)",
+                axis: "rgba(139, 92, 246, .25)",
+                label: "rgba(88, 28, 135, .85)",
+                fill: "rgba(167, 139, 250, .2)",
+                stroke: "rgba(124, 58, 237, .9)"
+            },
+            {
+                grid: "rgba(56, 189, 248, .25)",
+                axis: "rgba(56, 189, 248, .25)",
+                label: "rgba(7, 89, 133, .85)",
+                fill: "rgba(103, 232, 249, .2)",
+                stroke: "rgba(14, 165, 233, .9)"
+            },
+            {
+                grid: "rgba(251, 146, 60, .25)",
+                axis: "rgba(251, 146, 60, .25)",
+                label: "rgba(154, 52, 18, .85)",
+                fill: "rgba(254, 215, 170, .25)",
+                stroke: "rgba(249, 115, 22, .95)"
+            },
+            {
+                grid: "rgba(244, 114, 182, .25)",
+                axis: "rgba(244, 114, 182, .25)",
+                label: "rgba(157, 23, 77, .85)",
+                fill: "rgba(249, 168, 212, .2)",
+                stroke: "rgba(236, 72, 153, .9)"
+            },
+            {
+                grid: "rgba(52, 211, 153, .25)",
+                axis: "rgba(52, 211, 153, .25)",
+                label: "rgba(6, 95, 70, .85)",
+                fill: "rgba(110, 231, 183, .2)",
+                stroke: "rgba(16, 185, 129, .9)"
+            }
+        ];
+
+        function drawRadar(canvas, valuesObj, colors) {
+            const ctx = canvas.getContext("2d");
+            const keys = Object.keys(valuesObj);
+            const vals = keys.map(k => valuesObj[k]);
+
+            const w = canvas.width, h = canvas.height;
+            const cx = w / 2, cy = h / 2;
+            const r = Math.min(w, h) * 0.34;
+
+            ctx.clearRect(0, 0, w, h);
+            ctx.translate(0.5, 0.5);
+
+            const levels = 5;
+
+            // 背景圈（框框）
+            for (let lv = 1; lv <= levels; lv++) {
+                const rr = (r * lv) / levels;
+                ctx.beginPath();
+                keys.forEach((_, i) => {
+                    const ang = (Math.PI * 2 * i) / keys.length - Math.PI / 2;
+                    const x = cx + Math.cos(ang) * rr;
+                    const y = cy + Math.sin(ang) * rr;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.closePath();
+                ctx.strokeStyle = colors.grid;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // 軸線 + 標籤
+            ctx.font = "14px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif";
+            ctx.fillStyle = colors.label;
+            keys.forEach((k, i) => {
+                const ang = (Math.PI * 2 * i) / keys.length - Math.PI / 2;
+                const x = cx + Math.cos(ang) * (r + 25);
+                const y = cy + Math.sin(ang) * (r + 25);
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(ang) * r, cy + Math.sin(ang) * r);
+                ctx.strokeStyle = colors.axis;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(k, x, y);
+            });
+
+            // 數據多邊形
+            ctx.beginPath();
+            vals.forEach((v, i) => {
+                const ratio = Math.max(0, Math.min(1, v / 100));
+                const ang = (Math.PI * 2 * i) / keys.length - Math.PI / 2;
+                const x = cx + Math.cos(ang) * (r * ratio);
+                const y = cy + Math.sin(ang) * (r * ratio);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.closePath();
+            ctx.fillStyle = colors.fill;
+            ctx.strokeStyle = colors.stroke;
+            ctx.lineWidth = 3;
+            ctx.fill();
+            ctx.stroke();
+
+            // 數據點
+            vals.forEach((v, i) => {
+                const ratio = Math.max(0, Math.min(1, v / 100));
+                const ang = (Math.PI * 2 * i) / keys.length - Math.PI / 2;
+                const x = cx + Math.cos(ang) * (r * ratio);
+                const y = cy + Math.sin(ang) * (r * ratio);
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = colors.stroke;
+                ctx.fill();
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+        }
+
+        // 繪製所有方案
+        colorSchemes.forEach((colors, index) => {
+            const canvas = document.getElementById(`canvas${index + 1}`);
+            drawRadar(canvas, testData, colors);
+        });
+    </script>
+</body>
+</html>
