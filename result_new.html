@@ -845,31 +845,31 @@
                 canvas.height = canvas.id === 'radar-chart-overview' ? 150 : 300;
             }
 
-            // 取得 metrics，如果沒有就用預設值
-            let metrics = result?.metrics;
-            if (!metrics) {
-                console.warn('No metrics data, using default values');
-                metrics = {
-                    glow: 70,
-                    complexion: 75,
-                    blemish: 60,
-                    oilBalance: 65,
-                    evenness: 70
+            // 取得 b_scores（皮膚問題分數），如果沒有就用預設值
+            let bScores = result?.b_scores;
+            if (!bScores) {
+                console.warn('No b_scores data, using default values');
+                bScores = {
+                    wrinkles: 50,
+                    spots: 60,
+                    acne: 55,
+                    comedones: 45,
+                    darkCircles: 65
                 };
             }
 
             const radarValues = {
-                "光澤": Number(metrics.glow ?? 0),
-                "氣色": Number(metrics.complexion ?? 0),
-                "瑕疵": Number(metrics.blemish ?? 0),
-                "油水": Number(metrics.oilBalance ?? 0),
-                "均勻": Number(metrics.evenness ?? 0)
+                "細紋": Number(bScores.wrinkles ?? 0) * 10,
+                "斑": Number(bScores.spots ?? 0) * 10,
+                "痘痘": Number(bScores.acne ?? 0) * 10,
+                "粉刺": Number(bScores.comedones ?? 0) * 10,
+                "黑眼圈": Number(bScores.darkCircles ?? 0) * 10
             };
 
             console.log('drawRadarChart called with:', {
                 canvasId: canvas.id,
                 canvasSize: { width: canvas.width, height: canvas.height },
-                metrics: metrics,
+                bScores: bScores,
                 radarValues: radarValues
             });
 
