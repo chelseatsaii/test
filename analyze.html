@@ -601,9 +601,9 @@
 
       const avgActivity = count > 0 ? totalActivity / count : 0;
 
-      // 如果嘴部活動度異常低（< 0.05），可能是戴口罩
-      // 這個閾值可能需要根據實際測試調整
-      return avgActivity < 0.05;
+      // 如果嘴部活動度異常低（< 0.01），可能是戴口罩
+      // 降低閾值 (從 0.05 降到 0.01) 以避免表情嚴肅/放鬆時被誤判為口罩
+      return avgActivity < 0.01;
     }
 
     /**
