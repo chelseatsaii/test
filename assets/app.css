@@ -2,24 +2,65 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  --glass-bg: rgba(255, 255, 255, .14);
-  --glass-border: rgba(255, 255, 255, .22);
+  /* ========================================
+     專業高級灰配色系統 (方案 B)
+     ======================================== */
+  /* 主色調 - 深灰藍 */
+  --primary: #2D3748;
+  --primary-light: #4A5568;
+  --primary-dark: #1A202C;
 
-  --text-dark: rgba(22, 22, 26, .92);
-  --text: rgba(22, 22, 26, .92);
-  --muted: rgba(22, 22, 26, .62);
+  /* 點綴色 - 珊瑚橘 */
+  --accent: #FF9B82;
+  --accent-light: #FFB4A2;
+  --accent-dark: #E67E65;
 
-  --shadow: rgba(0, 0, 0, .18);
+  /* 輔助色 */
+  --secondary: #718096;
+  --secondary-light: #A0AEC0;
 
-  --accent: #D4A574;
-  /* 溫暖奶茶色 */
-  --accent2: #E8D5B7;
-  /* 淺米色 */
+  /* 背景色系 */
+  --bg-primary: #F7FAFC;
+  --bg-secondary: #EDF2F7;
+  --bg-card: #FFFFFF;
 
-  /* ✅ 新增：統一版面寬度與 header 高度 */
+  /* 文字色系 */
+  --text-dark: #1A202C;
+  --text: #2D3748;
+  --muted: #718096;
+  --text-light: #A0AEC0;
+
+  /* 玻璃效果 */
+  --glass-bg: rgba(255, 255, 255, .85);
+  --glass-border: rgba(45, 55, 72, .08);
+
+  /* 陰影系統 */
+  --shadow: rgba(0, 0, 0, .08);
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, .04);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, .06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, .08);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, .10);
+  --shadow-xl: 0 24px 64px rgba(0, 0, 0, .12);
+
+  /* 圓角系統 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* 字體系統 */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+  --text-2xl: 42px;
+
+  /* 版面 */
   --page-max: 1040px;
   --header-h: 76px;
-  /* 基準高度（再加 safe-top） */
 }
 
 html,
@@ -33,11 +74,12 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
 
+  /* 專業高級灰背景 */
   background:
-    radial-gradient(1200px 900px at 20% 18%, rgba(232, 213, 183, 0.35), transparent 55%),
-    radial-gradient(900px 700px at 80% 28%, rgba(212, 165, 116, 0.25), transparent 55%),
-    radial-gradient(900px 900px at 50% 90%, rgba(255, 248, 240, 0.85), transparent 60%),
-    linear-gradient(180deg, #FFF8F0 0%, #F5EFE7 100%);
+    radial-gradient(1200px 900px at 20% 18%, rgba(255, 155, 130, 0.08), transparent 60%),
+    radial-gradient(900px 700px at 80% 28%, rgba(160, 174, 192, 0.12), transparent 65%),
+    radial-gradient(900px 900px at 50% 90%, rgba(237, 242, 247, 0.95), transparent 60%),
+    linear-gradient(180deg, #F7FAFC 0%, #EDF2F7 100%);
 }
 
 /* 背景玻璃層 */
@@ -153,7 +195,7 @@ header {
   width: 34px;
   height: 34px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(212, 165, 116, .95), rgba(232, 213, 183, .92));
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
   box-shadow: 0 10px 30px var(--shadow);
 }
 
@@ -162,7 +204,7 @@ header {
   font-size: 15px;
   letter-spacing: 1px;
   font-weight: 800;
-  background: linear-gradient(135deg, rgba(212, 165, 116, .95), rgba(232, 213, 183, .95));
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -258,10 +300,11 @@ header {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, rgba(212, 165, 116, .95), rgba(232, 213, 183, .92));
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
   border: 1px solid rgba(0, 0, 0, .08);
-  color: rgba(24, 11, 10, 0.92);
+  color: white;
   font-weight: 900;
+  box-shadow: 0 4px 12px rgba(255, 155, 130, 0.25);
 }
 
 .btn-lg {
@@ -296,7 +339,7 @@ canvas {
   font-size: 34px;
   font-weight: 950;
   line-height: 1;
-  background: linear-gradient(135deg, rgba(232, 213, 183, .95), rgba(212, 165, 116, .85));
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
