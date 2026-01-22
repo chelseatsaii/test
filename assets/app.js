@@ -240,13 +240,14 @@ export function drawRadar(canvas, valuesObj) {
       else ctx.lineTo(x, y);
     });
     ctx.closePath();
-    ctx.strokeStyle = "rgba(255,255,255,.18)";
+    ctx.strokeStyle = "rgba(52, 211, 153, .25)"; // 翠綠框線
+    ctx.lineWidth = 2;
     ctx.stroke();
   }
 
   // axis + labels
   ctx.font = "12px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,.75)";
+  ctx.fillStyle = "rgba(6, 95, 70, .85)"; // 深綠文字
   keys.forEach((k, i) => {
     const ang = (Math.PI * 2 * i) / keys.length - Math.PI / 2;
     const x = cx + Math.cos(ang) * (r + 18);
@@ -254,7 +255,8 @@ export function drawRadar(canvas, valuesObj) {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(cx + Math.cos(ang) * r, cy + Math.sin(ang) * r);
-    ctx.strokeStyle = "rgba(255,255,255,.14)";
+    ctx.strokeStyle = "rgba(52, 211, 153, .25)"; // 翠綠軸線
+    ctx.lineWidth = 1;
     ctx.stroke();
     ctx.fillText(k, x - 18, y);
   });
@@ -270,8 +272,8 @@ export function drawRadar(canvas, valuesObj) {
     else ctx.lineTo(x, y);
   });
   ctx.closePath();
-  ctx.fillStyle = "rgba(255, 182, 193, .25)"; // 柔粉填色
-  ctx.strokeStyle = "rgba(242, 216, 140, .9)"; // 金色線
+  ctx.fillStyle = "rgba(110, 231, 183, .2)"; // 翠綠填充
+  ctx.strokeStyle = "rgba(16, 185, 129, .9)"; // 森林綠線條
   ctx.lineWidth = 2;
   ctx.fill();
   ctx.stroke();
