@@ -334,7 +334,9 @@
             max-width: 200px;
             height: 150px;
             margin: 16px auto;
-            background: rgba(212, 165, 116, .08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -437,7 +439,9 @@
                         <!-- B區 - 智能膚況解析 -->
                         <div class="section-card" onclick="showDetail('section-b')">
                             <div class="section-title">B. 智能膚況解析</div>
-                            <div class="radar-preview">五角雷達圖預覽</div>
+                            <div class="radar-preview">
+                                <canvas id="radar-chart-overview" width="200" height="150" style="display:block; margin:0 auto;"></canvas>
+                            </div>
                             <div class="section-preview">
                                 偵測到 <strong>2 項</strong> 主要問題
                             </div>
@@ -828,18 +832,17 @@
             return null;
         }
 
-        function renderRadar(result) {
-            const radar = document.getElementById('radar-chart');
-
-            if (!radar) {
+        // 共用的雷達圖繪製函數
+        function drawRadarChart(canvas, result) {
+            if (!canvas) {
                 console.error('Canvas element not found!');
                 return;
             }
 
             // 確保 canvas 有正確的尺寸
-            if (!radar.width || !radar.height) {
-                radar.width = 400;
-                radar.height = 300;
+            if (!canvas.width || !canvas.height) {
+                canvas.width = canvas.id === 'radar-chart-overview' ? 200 : 400;
+                canvas.height = canvas.id === 'radar-chart-overview' ? 150 : 300;
             }
 
             // 取得 metrics，如果沒有就用預設值
@@ -863,18 +866,25 @@
                 "均勻": Number(metrics.evenness ?? 0)
             };
 
-            console.log('renderRadar called with:', {
-                canvasSize: { width: radar.width, height: radar.height },
+            console.log('drawRadarChart called with:', {
+                canvasId: canvas.id,
+                canvasSize: { width: canvas.width, height: canvas.height },
                 metrics: metrics,
                 radarValues: radarValues
             });
 
             try {
-                drawRadar(radar, radarValues);
-                console.log('✅ Radar chart drawn successfully!');
+                drawRadar(canvas, radarValues);
+                console.log(`✅ Radar chart drawn successfully on ${canvas.id}!`);
             } catch (e) {
-                console.error('❌ Error drawing radar:', e);
+                console.error(`❌ Error drawing radar on ${canvas.id}:`, e);
             }
+        }
+
+        // 為詳情頁 B 區繪製雷達圖
+        function renderRadar(result) {
+            const radar = document.getElementById('radar-chart');
+            drawRadarChart(radar, result);
         }
 
         async function loadData() {
@@ -902,8 +912,14 @@
                 }
             }
 
-            // ⚠️ 不在這裡繪製雷達圖，因為 detail-page 預設是隱藏的
-            // 雷達圖會在使用者點擊進入 B 區時才繪製（見 showDetail 函數）
+            // 繪製總覽頁面的雷達圖（總覽頁面是可見的）
+            setTimeout(() => {
+                const overviewRadar = document.getElementById('radar-chart-overview');
+                if (overviewRadar) {
+                    console.log('🎨 Drawing overview radar chart...');
+                    drawRadarChart(overviewRadar, result);
+                }
+            }, 100);
 
             toast('資料載入完成');
         }
