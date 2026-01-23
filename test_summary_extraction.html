@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>總覽摘要測試</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
+        }
+
+        .test-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .quick-summary {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 8px 0;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .quick-summary.positive {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.04));
+            border-left: 3px solid rgba(16, 185, 129, 0.6);
+        }
+
+        .quick-summary.attention {
+            background: linear-gradient(135deg, rgba(255, 155, 130, 0.08), rgba(255, 155, 130, 0.04));
+            border-left: 3px solid rgba(255, 155, 130, 0.6);
+        }
+
+        .summary-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            line-height: 1.5;
+        }
+
+        .quick-summary span:last-child {
+            flex: 1;
+            color: #2D3748;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 總覽摘要提取測試</h1>
+
+        <!-- 測試 1: 完整 AI 診斷資料 -->
+        <div class="test-section">
+            <h2>測試 1: 完整 AI 診斷資料</h2>
+            <div class="code-block">
+                <pre>{
+  "ai_diagnosis": {
+    "positive_feedback": "您的氣色整體穩定，膚色均勻度良好，顯示出良好的作息與保養習慣。光澤度適中，整體呈現健康的自然光感。",
+    "problem_analysis": "眼周區域略顯疲態，建議加強保濕與按摩促進循環。T 字部位油脂分泌稍多，可調整清潔頻率並選用清爽型保養品。"
+  }
+}</pre>
+            </div>
+            <div class="label">提取結果：</div>
+            <div class="quick-summary positive">
+                <span class="summary-icon">✨</span>
+                <span id="test1-positive">您的氣色整體穩定，膚色均勻度良好...</span>
+            </div>
+            <div class="quick-summary attention">
+                <span class="summary-icon">⚠️</span>
+                <span id="test1-attention">眼周區域略顯疲態...</span>
+            </div>
+        </div>
+
+        <!-- 測試 2: a_summary 資料 -->
+        <div class="test-section">
+            <h2>測試 2: a_summary 資料（備用方案）</h2>
+            <div class="code-block">
+                <pre>{
+  "a_summary": "膚色整體明亮，輪廓精神感不錯；但眼周略顯疲勞與暗沉，建議加強放鬆與循環。",
+  "a_issue": "眼睛疲勞",
+  "a_issue_detail": "靜脈瘀血"
+}</pre>
+            </div>
+            <div class="label">提取結果：</div>
+            <div class="quick-summary positive">
+                <span class="summary-icon">✨</span>
+                <span id="test2-positive">膚色整體明亮，輪廓精神感不錯</span>
+            </div>
+            <div class="quick-summary attention">
+                <span class="summary-icon">⚠️</span>
+                <span id="test2-attention">靜脈瘀血</span>
+            </div>
+        </div>
+
+        <!-- 測試 3: 超長文字截斷 -->
+        <div class="test-section">
+            <h2>測試 3: 超長文字智能截斷</h2>
+            <div class="code-block">
+                <pre>{
+  "ai_diagnosis": {
+    "positive_feedback": "您的氣色整體穩定且膚色均勻度非常良好，這顯示出您有良好的作息與保養習慣，值得繼續保持。",
+    "problem_analysis": "眼周區域略顯疲態且有輕微暗沉現象，建議加強保濕與按摩促進循環。"
+  }
+}</pre>
+            </div>
+            <div class="label">提取結果（自動截斷到 30 字）：</div>
+            <div class="quick-summary positive">
+                <span class="summary-icon">✨</span>
+                <span id="test3-positive">您的氣色整體穩定且膚色均勻度非常良好...</span>
+            </div>
+            <div class="quick-summary attention">
+                <span class="summary-icon">⚠️</span>
+                <span id="test3-attention">眼周區域略顯疲態且有輕微暗沉現象...</span>
+            </div>
+        </div>
+
+        <!-- 測試 4: 預設文字 -->
+        <div class="test-section">
+            <h2>測試 4: 無資料時使用預設文字</h2>
+            <div class="code-block">
+                <pre>{
+  "overall": 78
+  // 沒有 ai_diagnosis 或 a_summary
+}</pre>
+            </div>
+            <div class="label">提取結果：</div>
+            <div class="quick-summary positive">
+                <span class="summary-icon">✨</span>
+                <span>氣色整體穩定，膚色均勻度良好</span>
+            </div>
+            <div class="quick-summary attention">
+                <span class="summary-icon">⚠️</span>
+                <span>眼周區域略顯疲態</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 複製 extractSummary 函數進行測試
+        function extractSummary(text, maxLength = 30) {
+            if (!text) return '';
+            text = text.trim();
+            const sentenceEnd = text.search(/[。！？.!?]/);
+            if (sentenceEnd !== -1) {
+                text = text.substring(0, sentenceEnd);
+            }
+            if (text.length > maxLength) {
+                text = text.substring(0, maxLength) + '...';
+            }
+            return text;
+        }
+
+        // 測試 1
+        const test1Positive = "您的氣色整體穩定，膚色均勻度良好，顯示出良好的作息與保養習慣。光澤度適中，整體呈現健康的自然光感。";
+        const test1Attention = "眼周區域略顯疲態，建議加強保濕與按摩促進循環。T 字部位油脂分泌稍多，可調整清潔頻率並選用清爽型保養品。";
+        document.getElementById('test1-positive').textContent = extractSummary(test1Positive, 30);
+        document.getElementById('test1-attention').textContent = extractSummary(test1Attention, 25);
+
+        // 測試 2
+        const test2Summary = "膚色整體明亮，輪廓精神感不錯；但眼周略顯疲勞與暗沉，建議加強放鬆與循環。";
+        const parts = test2Summary.split(/[；;但]/);
+        document.getElementById('test2-positive').textContent = extractSummary(parts[0], 30);
+        document.getElementById('test2-attention').textContent = extractSummary("靜脈瘀血", 25);
+
+        // 測試 3
+        const test3Positive = "您的氣色整體穩定且膚色均勻度非常良好，這顯示出您有良好的作息與保養習慣，值得繼續保持。";
+        const test3Attention = "眼周區域略顯疲態且有輕微暗沉現象，建議加強保濕與按摩促進循環。";
+        document.getElementById('test3-positive').textContent = extractSummary(test3Positive, 30);
+        document.getElementById('test3-attention').textContent = extractSummary(test3Attention, 25);
+    </script>
+</body>
+
+</html>
