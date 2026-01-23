@@ -228,7 +228,7 @@ export function drawRadar(canvas, valuesObj) {
 
   const levels = 5;
 
-  // grid
+  // grid - 專業高級灰配色
   for (let lv = 1; lv <= levels; lv++) {
     const rr = (r * lv) / levels;
     ctx.beginPath();
@@ -240,13 +240,14 @@ export function drawRadar(canvas, valuesObj) {
       else ctx.lineTo(x, y);
     });
     ctx.closePath();
-    ctx.strokeStyle = "rgba(255,255,255,.18)";
+    ctx.strokeStyle = "rgba(160, 174, 192, .25)"; // 淺灰藍框線
+    ctx.lineWidth = 2;
     ctx.stroke();
   }
 
   // axis + labels
-  ctx.font = "12px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,.75)";
+  ctx.font = "13px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif";
+  ctx.fillStyle = "rgba(45, 55, 72, .85)"; // 深灰藍文字
   keys.forEach((k, i) => {
     const ang = (Math.PI * 2 * i) / keys.length - Math.PI / 2;
     const x = cx + Math.cos(ang) * (r + 18);
@@ -254,12 +255,13 @@ export function drawRadar(canvas, valuesObj) {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(cx + Math.cos(ang) * r, cy + Math.sin(ang) * r);
-    ctx.strokeStyle = "rgba(255,255,255,.14)";
+    ctx.strokeStyle = "rgba(160, 174, 192, .20)"; // 淺灰藍軸線
+    ctx.lineWidth = 1;
     ctx.stroke();
     ctx.fillText(k, x - 18, y);
   });
 
-  // polygon
+  // polygon - 珊瑚橘點綴色
   ctx.beginPath();
   vals.forEach((v, i) => {
     const ratio = Math.max(0, Math.min(1, v / 100));
@@ -270,9 +272,9 @@ export function drawRadar(canvas, valuesObj) {
     else ctx.lineTo(x, y);
   });
   ctx.closePath();
-  ctx.fillStyle = "rgba(255, 182, 193, .25)"; // 柔粉填色
-  ctx.strokeStyle = "rgba(242, 216, 140, .9)"; // 金色線
-  ctx.lineWidth = 2;
+  ctx.fillStyle = "rgba(255, 155, 130, .18)"; // 珊瑚橘填充
+  ctx.strokeStyle = "rgba(255, 155, 130, .9)"; // 珊瑚橘線條
+  ctx.lineWidth = 3;
   ctx.fill();
   ctx.stroke();
 

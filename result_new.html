@@ -334,7 +334,9 @@
             max-width: 200px;
             height: 150px;
             margin: 16px auto;
-            background: rgba(212, 165, 116, .08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -409,7 +411,6 @@
                     <p>AI 皮膚分析報告</p>
                 </div>
             </div>
-            <button class="btn" onclick="location.href='analyze.html'">再分析</button>
         </header>
 
         <div class="stage">
@@ -437,7 +438,9 @@
                         <!-- B區 - 智能膚況解析 -->
                         <div class="section-card" onclick="showDetail('section-b')">
                             <div class="section-title">B. 智能膚況解析</div>
-                            <div class="radar-preview">五角雷達圖預覽</div>
+                            <div class="radar-preview">
+                                <canvas id="radar-chart-overview" width="200" height="150" style="display:block; margin:0 auto;"></canvas>
+                            </div>
                             <div class="section-preview">
                                 偵測到 <strong>2 項</strong> 主要問題
                             </div>
@@ -750,6 +753,18 @@
             const targetIndex = sectionMap[sectionId] || 0;
             sections[targetIndex].scrollIntoView({ behavior: 'smooth' });
 
+            // 如果進入 B 區（智能膚況解析），繪製雷達圖
+            if (sectionId === 'section-b') {
+                // 使用 requestAnimationFrame 確保 DOM 完全渲染後才繪製
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        console.log('🎨 Now drawing radar chart for section B...');
+                        const result = loadResult();
+                        renderRadar(result);
+                    }, 100);
+                });
+            }
+
             // GA 追蹤
             trackSection(sections[targetIndex].dataset.section);
         }
@@ -816,25 +831,67 @@
             return null;
         }
 
-        function renderRadar(result) {
-            const metrics = result?.metrics;
-            const radar = document.getElementById('radar-chart');
-            if (!radar || !metrics) return;
+        // 共用的雷達圖繪製函數
+        function drawRadarChart(canvas, result) {
+            if (!canvas) {
+                console.error('Canvas element not found!');
+                return;
+            }
+
+            // 確保 canvas 有正確的尺寸
+            if (!canvas.width || !canvas.height) {
+                canvas.width = canvas.id === 'radar-chart-overview' ? 200 : 400;
+                canvas.height = canvas.id === 'radar-chart-overview' ? 150 : 300;
+            }
+
+            // 取得 b_scores（皮膚問題分數），如果沒有就用預設值
+            let bScores = result?.b_scores;
+            if (!bScores) {
+                console.warn('No b_scores data, using default values');
+                bScores = {
+                    wrinkles: 50,
+                    spots: 60,
+                    acne: 55,
+                    comedones: 45,
+                    darkCircles: 65
+                };
+            }
 
             const radarValues = {
-                "Glow": Number(metrics.glow ?? 0),
-                "Complexion": Number(metrics.complexion ?? 0),
-                "Blemish": Number(metrics.blemish ?? 0),
-                "Oil Balance": Number(metrics.oilBalance ?? 0),
-                "Evenness": Number(metrics.evenness ?? 0)
+                "細紋": Number(bScores.wrinkles ?? 0) * 10,
+                "斑": Number(bScores.spots ?? 0) * 10,
+                "痘痘": Number(bScores.acne ?? 0) * 10,
+                "粉刺": Number(bScores.comedones ?? 0) * 10,
+                "黑眼圈": Number(bScores.darkCircles ?? 0) * 10
             };
 
-            drawRadar(radar, radarValues);
+            console.log('drawRadarChart called with:', {
+                canvasId: canvas.id,
+                canvasSize: { width: canvas.width, height: canvas.height },
+                bScores: bScores,
+                radarValues: radarValues
+            });
+
+            try {
+                drawRadar(canvas, radarValues);
+                console.log(`✅ Radar chart drawn successfully on ${canvas.id}!`);
+            } catch (e) {
+                console.error(`❌ Error drawing radar on ${canvas.id}:`, e);
+            }
+        }
+
+        // 為詳情頁 B 區繪製雷達圖
+        function renderRadar(result) {
+            const radar = document.getElementById('radar-chart');
+            drawRadarChart(radar, result);
         }
 
         async function loadData() {
+            console.log('loadData started');
+
             // 從 localStorage 或 API 載入資料
             const result = await ensureResult();
+            console.log('Result loaded:', result);
 
             if (result && result.overall) {
                 // 更新 A 區分數
@@ -845,8 +902,6 @@
             }
 
             // 載入使用者照片
-            renderRadar(result);
-
             const userPhoto = localStorage.getItem('user_photo');
             if (userPhoto) {
                 const photoEl = document.getElementById('user-photo-a');
@@ -855,6 +910,15 @@
                     photoEl.style.display = 'block';
                 }
             }
+
+            // 繪製總覽頁面的雷達圖（總覽頁面是可見的）
+            setTimeout(() => {
+                const overviewRadar = document.getElementById('radar-chart-overview');
+                if (overviewRadar) {
+                    console.log('🎨 Drawing overview radar chart...');
+                    drawRadarChart(overviewRadar, result);
+                }
+            }, 100);
 
             toast('資料載入完成');
         }
