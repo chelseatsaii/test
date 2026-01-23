@@ -262,6 +262,43 @@
             font-weight: 500;
         }
 
+        /* C 區生活建議徽章樣式 */
+        .lifestyle-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .advice-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.2s;
+        }
+
+        .advice-badge:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .advice-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .advice-text {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
         /* ========================================
        詳情頁 - 全螢幕滾動
        ======================================== */
@@ -757,9 +794,24 @@
                         <!-- C區 - 由內而外養膚 -->
                         <div class="section-card" onclick="showDetail('section-c')">
                             <div class="section-title">C. 由內而外養膚</div>
-                            <div class="section-preview">
-                                根據您的問卷結果,提供個人化飲食與生活建議
+
+                            <!-- 生活建議徽章 -->
+                            <div class="lifestyle-badges" id="lifestyle-badges">
+                                <!-- 動態渲染 -->
+                                <div class="advice-badge">
+                                    <span class="advice-icon">🥗</span>
+                                    <span class="advice-text">營養：增加蔬果、減少油炸</span>
+                                </div>
+                                <div class="advice-badge">
+                                    <span class="advice-icon">😴</span>
+                                    <span class="advice-text">作息：每晚 7-8 小時睡眠</span>
+                                </div>
+                                <div class="advice-badge">
+                                    <span class="advice-icon">🏃</span>
+                                    <span class="advice-text">運動：每週至少 3 次運動</span>
+                                </div>
                             </div>
+
                             <div class="section-badge">點擊查看詳情 →</div>
                         </div>
 
@@ -876,7 +928,7 @@
                 <!-- 營養補充 -->
                 <div class="massage-card">
                     <h3>營養補充建議</h3>
-                    <ul style="line-height:1.8;">
+                    <ul style="line-height:1.8;" id="nutrition-list">
                         <li>深綠色蔬菜 (菠菜、羽衣甘藍)</li>
                         <li>Omega-3 食物 (鮭魚、核桃)</li>
                         <li>維生素 C 水果 (奇異果、柑橘)</li>
@@ -887,13 +939,13 @@
                 <!-- 作息調整 -->
                 <div class="massage-card">
                     <h3>作息調整建議</h3>
-                    <p>建議固定就寢時間,每晚睡眠 7-8 小時,連續 7 天觀察氣色變化。</p>
+                    <p id="sleep-detail">建議固定就寢時間,每晚睡眠 7-8 小時,連續 7 天觀察氣色變化。</p>
                 </div>
 
                 <!-- 生活習慣 -->
                 <div class="massage-card">
                     <h3>生活習慣改善</h3>
-                    <p>保持規律運動,每週至少 3 次,每次 30 分鐘。避免過度曝曬,做好防曬措施。</p>
+                    <p id="exercise-detail">保持規律運動,每週至少 3 次,每次 30 分鐘。避免過度曝曬,做好防曬措施。</p>
                 </div>
             </div>
             <div class="scroll-hint">往下滑動查看產品推薦 ↓</div>
@@ -1212,6 +1264,9 @@
             // 🎨 新增：更新 B 區 Top 2 問題徽章
             updateTopIssuesBadges(result);
 
+            // 🎨 新增：更新 C 區生活建議
+            updateLifestyleAdvice(result);
+
             // 載入使用者照片
             const userPhoto = localStorage.getItem('user_photo');
             if (userPhoto) {
@@ -1325,6 +1380,59 @@
             }).join('');
 
             console.log('✅ Top issues badges updated:', topIssues);
+        }
+
+        // ========================================
+        // C 區生活建議更新
+        // ========================================
+
+        /**
+         * 更新總覽頁面的 C 區生活建議
+         * @param {object} result - 分析結果資料
+         */
+        function updateLifestyleAdvice(result) {
+            const badgesContainer = document.getElementById('lifestyle-badges');
+            const nutritionList = document.getElementById('nutrition-list');
+            const sleepDetail = document.getElementById('sleep-detail');
+            const exerciseDetail = document.getElementById('exercise-detail');
+
+            // 取得 lifestyle_advice
+            const advice = result?.lifestyle_advice;
+            if (!advice) {
+                console.warn('No lifestyle advice data');
+                return;
+            }
+
+            // 1. 更新總覽頁面徽章
+            if (badgesContainer) {
+                badgesContainer.innerHTML = `
+                    <div class="advice-badge">
+                        <span class="advice-icon">🥗</span>
+                        <span class="advice-text">營養：${advice.nutrition?.summary || '均衡飲食'}</span>
+                    </div>
+                    <div class="advice-badge">
+                        <span class="advice-icon">😴</span>
+                        <span class="advice-text">作息：${advice.sleep?.summary || '充足睡眠'}</span>
+                    </div>
+                    <div class="advice-badge">
+                        <span class="advice-icon">🏃</span>
+                        <span class="advice-text">運動：${advice.exercise?.summary || '規律運動'}</span>
+                    </div>
+                `;
+            }
+
+            // 2. 更新詳情頁面內容
+            if (nutritionList && advice.nutrition?.items) {
+                nutritionList.innerHTML = advice.nutrition.items.map(item => `<li>${item}</li>`).join('');
+            }
+            if (sleepDetail && advice.sleep?.detail) {
+                sleepDetail.textContent = advice.sleep.detail;
+            }
+            if (exerciseDetail && advice.exercise?.detail) {
+                exerciseDetail.textContent = advice.exercise.detail;
+            }
+
+            console.log('✅ Lifestyle advice updated (Overview \u0026 Details)');
         }
 
         // ========================================

@@ -37,6 +37,26 @@
     "wrinkles": 4.2,
     "spots": 6.9
   },
+  "lifestyle_advice": {
+    "nutrition": {
+      "summary": "增加蔬果、減少油炸",
+      "detail": "建議每天攝取 5 份蔬果，包括深綠色蔬菜、Omega-3 食物等。減少油炸食物攝取，改善皮膚油脂分泌。",
+      "items": [
+        "深綠色蔬菜 (菠菜、羽衣甘藍)",
+        "Omega-3 食物 (鮭魚、核桃)",
+        "維生素 C 水果 (奇異果、柑橘)",
+        "堅果與全穀類"
+      ]
+    },
+    "sleep": {
+      "summary": "每晚 7-8 小時睡眠",
+      "detail": "建議固定就寢時間，每晚睡眠 7-8 小時，連續 7 天觀察氣色變化。良好的睡眠有助於皮膚修復。"
+    },
+    "exercise": {
+      "summary": "每週至少 3 次運動",
+      "detail": "保持規律運動，每週至少 3 次，每次 30 分鐘。運動可促進血液循環，改善氣色。避免過度曝曬，做好防曬措施。"
+    }
+  },
   "c_tips": [
     "Hydrate earlier in the day and keep the routine consistent for 7 days.",
     "Add protein at breakfast and reduce late-night sugar spikes.",
