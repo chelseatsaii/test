@@ -105,15 +105,25 @@
       box-shadow: 0 10px 24px rgba(255, 157, 184, .3), 0 20px 50px rgba(0, 0, 0, .25);
       cursor: pointer;
       z-index: 5;
-      opacity: 0.4;
+      opacity: 0.3;
+      /* 🎨 改善：0.4 → 0.3 更明顯的禁用狀態 */
       pointer-events: none;
+      filter: grayscale(0.6);
+      /* 🎨 新增：灰階效果強化禁用視覺 */
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     #captureBtn.active {
       opacity: 1;
       pointer-events: auto;
+      filter: grayscale(0);
+      /* 🎨 新增：移除灰階效果 */
       animation: capturePulse 2s infinite ease-in-out;
+      box-shadow:
+        0 10px 24px rgba(255, 157, 184, .4),
+        0 20px 50px rgba(0, 0, 0, .3),
+        0 0 0 4px rgba(255, 255, 255, .5);
+      /* 🎨 新增：外光圈效果 */
     }
 
     @keyframes capturePulse {

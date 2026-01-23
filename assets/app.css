@@ -2,12 +2,16 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  --glass-bg: rgba(255, 255, 255, .14);
+  --glass-bg: rgba(255, 255, 255, .22);
+  /* 🎨 提升：.14 → .22 增強卡片可見度 */
   --glass-border: rgba(255, 255, 255, .22);
 
-  --text-dark: rgba(22, 22, 26, .92);
-  --text: rgba(22, 22, 26, .92);
-  --muted: rgba(22, 22, 26, .62);
+  --text-dark: rgba(22, 22, 26, .95);
+  /* 🎨 提升：.92 → .95 增強對比度 */
+  --text: rgba(22, 22, 26, .95);
+  /* 🎨 提升：.92 → .95 增強對比度 */
+  --muted: rgba(22, 22, 26, .72);
+  /* 🎨 提升：.62 → .72 增強可讀性 */
 
   --shadow: rgba(0, 0, 0, .18);
 
@@ -201,7 +205,10 @@ header {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 22px;
-  box-shadow: 0 20px 70px rgba(0, 0, 0, .18);
+  box-shadow:
+    0 20px 70px rgba(0, 0, 0, .18),
+    0 0 0 1px rgba(255, 255, 255, .35) inset;
+  /* 🎨 新增：內光效果增強層次 */
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   overflow: hidden;
@@ -236,6 +243,10 @@ header {
 
 /* 按鈕 */
 .btn {
+  position: relative;
+  /* 🎨 新增：支援漣漪效果 */
+  overflow: hidden;
+  /* 🎨 新增：隱藏溢出的漣漪 */
   border: 1px solid rgba(0, 0, 0, .10);
   background: rgba(255, 255, 255, .60);
   color: rgba(22, 22, 26, .88);
@@ -244,17 +255,53 @@ header {
   font-size: 13px;
   letter-spacing: .4px;
   cursor: pointer;
-  transition: transform .15s ease, filter .15s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 🎨 改善：更流暢的過渡 */
   white-space: nowrap;
   /* ✅ 避免按鈕換行撐爆 header */
 }
 
+/* 🎨 新增：按鈕漣漪效果 */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .4);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn:active::before {
+  width: 300px;
+  height: 300px;
+}
+
 .btn:hover {
-  filter: brightness(1.03);
+  filter: brightness(1.05);
+  /* 🎨 提升：1.03 → 1.05 更明顯 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+  /* 🎨 新增：hover 陰影 */
 }
 
 .btn:active {
-  transform: scale(.98);
+  transform: scale(.97);
+  /* 🎨 改善：.98 → .97 更明顯的按下感 */
+}
+
+/* 🎨 新增：禁用狀態 */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  filter: grayscale(0.3);
+}
+
+.btn:disabled::before {
+  display: none;
 }
 
 .btn-primary {
@@ -317,14 +364,18 @@ canvas {
   color: rgba(22, 22, 26, .42);
 }
 
+/* 🎨 Toast 通知改善 */
 .toast {
   position: fixed;
   left: 50%;
   bottom: calc(16px + var(--safe-bottom));
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(0);
   padding: 10px 14px;
   border-radius: 14px;
   background: rgba(0, 0, 0, .78);
+  backdrop-filter: blur(10px);
+  /* 🎨 新增：背景模糊效果 */
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, .18);
   color: rgba(255, 255, 255, .92);
   font-size: 13px;
@@ -332,7 +383,8 @@ canvas {
   box-shadow: 0 16px 50px rgba(0, 0, 0, .35);
   opacity: 0;
   pointer-events: none;
-  transition: opacity .2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 🎨 改善：更流暢的過渡 */
   z-index: 60;
   max-width: min(92vw, 540px);
   text-align: center;
@@ -340,6 +392,33 @@ canvas {
 
 .toast.show {
   opacity: 1;
+  animation: toastSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 🎨 新增：滑入動畫 */
+}
+
+/* 🎨 新增：Toast 滑入動畫 */
+@keyframes toastSlideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 🎨 新增：錯誤提示變體 */
+.toast.error {
+  background: rgba(239, 68, 68, 0.9);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 🎨 新增：成功提示變體 */
+.toast.success {
+  background: rgba(16, 185, 129, 0.9);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* ✅ 手機：header 變直向更穩 */
