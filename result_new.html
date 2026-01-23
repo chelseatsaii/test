@@ -94,6 +94,39 @@
             flex: 1;
         }
 
+        /* B區特殊樣式 - 左右佈局 */
+        .section-card.card-b {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .card-b .radar-preview {
+            flex-shrink: 0;
+            width: 140px;
+            height: 110px;
+            margin: 0;
+        }
+
+        /* 左側內容區 */
+        .card-b .card-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* B 區徽章垂直排列 */
+        .card-b .top-issues-badges {
+            flex-direction: column;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .card-b .issue-badge {
+            width: 100%;
+        }
+
         /* 圓形分數 */
         .score-circle {
             width: 90px;
@@ -138,6 +171,95 @@
         .item-icon {
             font-size: 16px;
             flex-shrink: 0;
+        }
+
+        /* 快速摘要樣式 */
+        .quick-summary {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 8px 0;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .quick-summary.positive {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.04));
+            border-left: 3px solid rgba(16, 185, 129, 0.6);
+        }
+
+        .quick-summary.attention {
+            background: linear-gradient(135deg, rgba(255, 155, 130, 0.08), rgba(255, 155, 130, 0.04));
+            border-left: 3px solid rgba(255, 155, 130, 0.6);
+        }
+
+        .summary-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            line-height: 1.5;
+        }
+
+        .quick-summary span:last-child {
+            flex: 1;
+            color: var(--text);
+        }
+
+        /* B 區 Top 2 問題徽章樣式 */
+        .top-issues-badges {
+            display: flex;
+            gap: 10px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .issue-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            transition: all 0.2s;
+        }
+
+        .issue-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .issue-badge.severe {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.06));
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .issue-badge.warning {
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.12), rgba(251, 146, 60, 0.06));
+            border-color: rgba(251, 146, 60, 0.3);
+        }
+
+        .issue-badge.moderate {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(234, 179, 8, 0.06));
+            border-color: rgba(234, 179, 8, 0.3);
+        }
+
+        .badge-icon {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .badge-name {
+            color: var(--text-dark);
+        }
+
+        .badge-score {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
         }
 
         /* ========================================
@@ -510,6 +632,39 @@
             .massage-item {
                 flex: 0 0 280px;
             }
+
+            /* A 區手機版調整 */
+            .section-card.card-a {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .score-circle {
+                width: 80px;
+                height: 80px;
+            }
+
+            .score-number {
+                font-size: 28px;
+            }
+
+            .quick-summary {
+                text-align: left;
+            }
+
+            /* B 區手機版調整 */
+            .section-card.card-b {
+                flex-direction: column-reverse;
+                /* 內容在上，雷達圖在下 */
+            }
+
+            .card-b .radar-preview {
+                width: 100%;
+                max-width: 200px;
+                height: 150px;
+                margin: 0 auto 16px auto;
+                /* 下方留間距 */
+            }
         }
     </style>
 </head>
@@ -542,26 +697,61 @@
                     <!-- 4個區域卡片 -->
                     <div class="overview-grid">
                         <!-- A區 - 活力氣色指南 -->
-                        <div class="section-card" onclick="showDetail('section-a')">
-                            <div class="section-title">A. 活力氣色指南</div>
-                            <div class="section-score" id="overview-score-a">78</div>
-                            <div class="section-preview">
-                                AI 分析您的氣色狀態,提供即時改善建議
+                        <div class="section-card card-a" onclick="showDetail('section-a')">
+                            <div class="card-left">
+                                <div class="score-circle">
+                                    <div class="score-number" id="overview-score-a">78</div>
+                                    <div class="score-label">氣色分數</div>
+                                </div>
                             </div>
-                            <div class="section-badge">點擊查看詳情 →</div>
+                            <div class="card-right">
+                                <div class="section-title">A. 活力氣色指南</div>
+
+                                <!-- 正面評價摘要 -->
+                                <div class="quick-summary positive">
+                                    <span class="summary-icon">✨</span>
+                                    <span id="overview-positive-summary">氣色整體穩定，膚色均勻度良好</span>
+                                </div>
+
+                                <!-- 主要關注點 -->
+                                <div class="quick-summary attention">
+                                    <span class="summary-icon">⚠️</span>
+                                    <span id="overview-attention-summary">眼周區域略顯疲態</span>
+                                </div>
+
+                                <div class="section-badge">點擊查看完整分析 →</div>
+                            </div>
                         </div>
 
                         <!-- B區 - 智能膚況解析 -->
-                        <div class="section-card" onclick="showDetail('section-b')">
-                            <div class="section-title">B. 智能膚況解析</div>
+                        <div class="section-card card-b" onclick="showDetail('section-b')">
+                            <!-- 左側：內容 -->
+                            <div class="card-left">
+                                <div class="section-title">B. 智能膚況解析</div>
+
+                                <!-- Top 2 問題徽章 -->
+                                <div class="top-issues-badges" id="top-issues-badges">
+                                    <!-- 動態渲染 -->
+                                    <div class="issue-badge severe">
+                                        <span class="badge-icon">🔴</span>
+                                        <span class="badge-name">黑眼圈</span>
+                                        <span class="badge-score">(7.8)</span>
+                                    </div>
+                                    <div class="issue-badge warning">
+                                        <span class="badge-icon">🟠</span>
+                                        <span class="badge-name">斑</span>
+                                        <span class="badge-score">(6.9)</span>
+                                    </div>
+                                </div>
+
+                                <div class="section-badge">點擊查看詳情 →</div>
+                            </div>
+
+                            <!-- 右側：雷達圖 -->
                             <div class="radar-preview">
                                 <canvas id="radar-chart-overview" width="200" height="150"
                                     style="display:block; margin:0 auto;"></canvas>
                             </div>
-                            <div class="section-preview">
-                                偵測到 <strong>2 項</strong> 主要問題
-                            </div>
-                            <div class="section-badge">點擊查看詳情 →</div>
                         </div>
 
                         <!-- C區 - 由內而外養膚 -->
@@ -1016,6 +1206,12 @@
                 }
             }
 
+            // 🎨 新增：更新總覽頁面的摘要
+            updateOverviewSummary(result);
+
+            // 🎨 新增：更新 B 區 Top 2 問題徽章
+            updateTopIssuesBadges(result);
+
             // 載入使用者照片
             const userPhoto = localStorage.getItem('user_photo');
             if (userPhoto) {
@@ -1036,6 +1232,183 @@
             }, 100);
 
             toast('資料載入完成');
+        }
+
+        // ========================================
+        // B 區 Top 2 問題徽章更新
+        // ========================================
+
+        /**
+         * 問題類型映射（中文名稱與圖示）
+         */
+        const ISSUE_MAP = {
+            wrinkles: { name: '細紋', icon: '📏' },
+            spots: { name: '斑', icon: '🟤' },
+            acne: { name: '痘痘', icon: '🔴' },
+            comedones: { name: '粉刺', icon: '⚪' },
+            darkCircles: { name: '黑眼圈', icon: '🌑' }
+        };
+
+        /**
+         * 根據分數判斷嚴重度等級
+         * @param {number} score - 分數 (0-10)
+         * @returns {string} 嚴重度等級: 'severe', 'warning', 'moderate'
+         */
+        function getSeverityLevel(score) {
+            if (score >= 7) return 'severe';      // 嚴重 (紅色)
+            if (score >= 5) return 'warning';     // 警告 (橘色)
+            return 'moderate';                     // 中等 (黃色)
+        }
+
+        /**
+         * 從 b_scores 中找出最嚴重的 2 個問題
+         * @param {object} bScores - 皮膚問題分數
+         * @returns {Array} Top 2 問題陣列
+         */
+        function getTopIssues(bScores) {
+            if (!bScores) return [];
+
+            const issues = Object.keys(ISSUE_MAP).map(key => ({
+                key: key,
+                name: ISSUE_MAP[key].name,
+                icon: ISSUE_MAP[key].icon,
+                score: Number(bScores[key] || 0)
+            }));
+
+            // 按分數排序，取前 2 名
+            return issues.sort((a, b) => b.score - a.score).slice(0, 2);
+        }
+
+        /**
+         * 更新總覽頁面的 B 區 Top 2 問題徽章
+         * @param {object} result - 分析結果資料
+         */
+        function updateTopIssuesBadges(result) {
+            const badgesContainer = document.getElementById('top-issues-badges');
+            const issuesCountEl = document.getElementById('issues-count');
+
+            if (!badgesContainer) {
+                console.warn('Top issues badges container not found');
+                return;
+            }
+
+            // 取得 b_scores
+            const bScores = result?.b_scores;
+            if (!bScores) {
+                console.warn('No b_scores data for top issues');
+                return;
+            }
+
+            // 找出 Top 2 問題
+            const topIssues = getTopIssues(bScores);
+
+            if (topIssues.length === 0) {
+                badgesContainer.innerHTML = '<div style="color: var(--muted); font-size: 13px;">暫無問題資料</div>';
+                return;
+            }
+
+            // 更新問題數量
+            if (issuesCountEl) {
+                issuesCountEl.textContent = topIssues.length;
+            }
+
+            // 渲染徽章
+            badgesContainer.innerHTML = topIssues.map(issue => {
+                const severity = getSeverityLevel(issue.score);
+                return `
+                    <div class="issue-badge ${severity}">
+                        <span class="badge-icon">${issue.icon}</span>
+                        <span class="badge-name">${issue.name}</span>
+                        <span class="badge-score">(${issue.score.toFixed(1)})</span>
+                    </div>
+                `;
+            }).join('');
+
+            console.log('✅ Top issues badges updated:', topIssues);
+        }
+
+        // ========================================
+        // 總覽頁面摘要更新
+        // ========================================
+
+        /**
+         * 智能提取摘要（取第一句話）
+         * @param {string} text - 完整文字
+         * @param {number} maxLength - 最大長度
+         * @returns {string} 摘要文字
+         */
+        function extractSummary(text, maxLength = 30) {
+            if (!text) return '';
+
+            // 移除前後空白
+            text = text.trim();
+
+            // 嘗試找到第一個句號、驚嘆號或問號
+            const sentenceEnd = text.search(/[。！？.!?]/);
+            if (sentenceEnd !== -1) {
+                text = text.substring(0, sentenceEnd);
+            }
+
+            // 如果還是太長，截斷並加上省略號
+            if (text.length > maxLength) {
+                text = text.substring(0, maxLength) + '...';
+            }
+
+            return text;
+        }
+
+        /**
+         * 更新總覽頁面的 A 區摘要
+         * @param {object} result - 分析結果資料
+         */
+        function updateOverviewSummary(result) {
+            const positiveSummaryEl = document.getElementById('overview-positive-summary');
+            const attentionSummaryEl = document.getElementById('overview-attention-summary');
+
+            if (!result) {
+                console.warn('No result data for overview summary');
+                return;
+            }
+
+            // 方案 1: 從 ai_diagnosis 取得資料（優先）
+            if (result.ai_diagnosis) {
+                const { positive_feedback, problem_analysis } = result.ai_diagnosis;
+
+                if (positiveSummaryEl && positive_feedback) {
+                    positiveSummaryEl.textContent = extractSummary(positive_feedback, 30);
+                }
+
+                if (attentionSummaryEl && problem_analysis) {
+                    attentionSummaryEl.textContent = extractSummary(problem_analysis, 25);
+                }
+            }
+            // 方案 2: 從 a_summary 和 a_issue 取得資料（備用）
+            else if (result.a_summary || result.a_issue) {
+                if (positiveSummaryEl && result.a_summary) {
+                    // 提取 a_summary 的前半部分（通常是正面評價）
+                    const parts = result.a_summary.split(/[；;但]/);
+                    const positivePart = parts[0] || result.a_summary;
+                    positiveSummaryEl.textContent = extractSummary(positivePart, 30);
+                }
+
+                if (attentionSummaryEl) {
+                    // 優先使用 a_issue_detail，否則使用 a_issue
+                    const issue = result.a_issue_detail || result.a_issue || '請保持良好習慣';
+                    attentionSummaryEl.textContent = extractSummary(issue, 25);
+                }
+            }
+            // 方案 3: 使用預設文字
+            else {
+                console.warn('Using default summary text');
+                if (positiveSummaryEl) {
+                    positiveSummaryEl.textContent = '氣色整體穩定，膚色均勻度良好';
+                }
+                if (attentionSummaryEl) {
+                    attentionSummaryEl.textContent = '眼周區域略顯疲態';
+                }
+            }
+
+            console.log('✅ Overview summary updated');
         }
 
         // 從 localStorage 載入結果
