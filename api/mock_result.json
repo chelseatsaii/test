@@ -1,64 +1,76 @@
 {
   "timestamp": "2026-01-22T08:00:00Z",
   "overall": 78,
-  "metrics": {
-    "glow": 72,
-    "complexion": 80,
-    "blemish": 64,
-    "oilBalance": 70,
-    "evenness": 75
-  },
+
   "a_score": 84,
-  "a_summary": "膚色整體明亮，輪廓精神感不錯；但眼周略顯疲勞與暗沉，建議加強放鬆與循環。",
+  "a_summary": "氣色良好，但眼周略顯疲勞",
+  "a_llm_analysis": "您的整體膚況呈現健康光澤，膚色均勻度良好，氣色明亮有精神。不過眼周區域顯示出輕微的疲勞跡象，可能與作息或用眼習慣有關，建議加強眼周循環與放鬆。",
   "a_issue": "眼睛疲勞",
   "a_issue_detail": "靜脈瘀血",
   "a_actions": [
     {
       "name": "眼部冷熱交替",
-      "desc": "冷熱敷交替，改善眼周暗沈與靜脈瘀血。",
-      "effect": "減少眼周暗沉與疲憊感。",
-      "gif": ""
+      "desc": "使用溫毛巾與冷毛巾交替敷眼，每次3-5分鐘",
+      "effect": "改善眼周暗沈與靜脈瘀血，減少疲憊感",
+      "gif": "/assets/massage/eye_hot_cold.gif"
     },
     {
       "name": "眼球運動",
-      "desc": "眼睛依序移動並遠望，放鬆眼外肌。",
-      "effect": "舒緩視覺壓力、提升精神感。",
-      "gif": ""
+      "desc": "眼睛依序上下左右移動，再遠望遠方",
+      "effect": "放鬆眼外肌，舒緩視覺壓力",
+      "gif": "/assets/massage/eye_exercise.gif"
     }
   ],
+
   "b_scores": {
-    "darkCircles": 7.8,
+    "wrinkles": 4.2,
+    "spots": 6.9,
     "acne": 6.1,
     "comedones": 5.4,
-    "wrinkles": 4.2,
-    "spots": 6.9
+    "darkCircles": 7.8
   },
-  "c_tips": [
-    "Hydrate earlier in the day and keep the routine consistent for 7 days.",
-    "Add protein at breakfast and reduce late-night sugar spikes.",
-    "Keep sun protection stable to avoid redness and unevenness swings."
+  "b_summary": "主要問題：黑眼圈、斑點較明顯",
+  "b_top_issues": [
+    {"name": "黑眼圈", "score": 7.8, "severity": "中度"},
+    {"name": "斑點", "score": 6.9, "severity": "輕度"}
   ],
+
+  "c_tips": [
+    "建議每日攝取至少 5 份蔬果，補充維生素C幫助肌膚抗氧化",
+    "保持每晚 7-8 小時充足睡眠，讓肌膚充分修復",
+    "加強日間防曬，使用 SPF30 以上防曬產品"
+  ],
+  "c_summary": "建議調整作息、增加蔬果攝取",
+
   "products": [
     {
-      "name": "Calm Balance Serum",
-      "desc": "Lightweight support for redness and uneven texture.",
-      "tag": "Soothing",
-      "url": "#",
-      "image": "assets/background.jpg"
+      "name": "亮白淡斑精華",
+      "desc": "針對斑點暗沉，溫和提亮膚色",
+      "tag": "淡斑",
+      "url": "https://example.com/product/1",
+      "image": "/assets/products/whitening_serum.jpg"
     },
     {
-      "name": "Barrier Repair Cream",
-      "desc": "Supports moisture retention and reduces dryness.",
-      "tag": "Barrier",
-      "url": "#",
-      "image": "assets/background.jpg"
+      "name": "眼周修護霜",
+      "desc": "改善黑眼圈與眼周細紋",
+      "tag": "眼部",
+      "url": "https://example.com/product/2",
+      "image": "/assets/products/eye_cream.jpg"
     },
     {
-      "name": "Daily UV Shield",
-      "desc": "Basic daily UV care to stabilize complexion.",
-      "tag": "UV",
-      "url": "#",
-      "image": "assets/background.jpg"
+      "name": "高效防曬乳",
+      "desc": "SPF50+ 全日防護，預防色素沉澱",
+      "tag": "防曬",
+      "url": "https://example.com/product/3",
+      "image": "/assets/products/sunscreen.jpg"
     }
-  ]
+  ],
+  "d_summary": "推薦 3 款針對您膚況的產品",
+
+  "line_bubble": {
+    "title": "您的AI膚況分析",
+    "hero_image": "/assets/brand_report_card.jpg",
+    "report_url": "https://chelseatsaii.github.io/test/result_new.html?id=xxx",
+    "quick_summary": "總分78分 · 主要問題2項 · 個人化建議3項"
+  }
 }
