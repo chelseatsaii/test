@@ -1,0 +1,65 @@
+{
+  "timestamp": "2026-01-22T08:00:00Z",
+  "overall": 78,
+  "metrics": {
+    "glow": 72,
+    "complexion": 80,
+    "blemish": 64,
+    "oilBalance": 70,
+    "evenness": 75
+  },
+  "a_score": 84,
+  "a_summary": "膚色整體明亮、精神感不錯，但眼周略顯疲勞與暗沉，建議加強放鬆與循環。",
+  "a_issue": "眼睛疲勞",
+  "a_issue_detail": "靜脈瘀血",
+  "a_encouragement": "你做得很好，維持規律作息會讓氣色更穩定。",
+  "a_actions": [
+    {
+      "name": "眼部冷熱交替",
+      "desc": "冷熱敷交替，改善眼周暗沉與靜脈瘀血。",
+      "effect": "減少眼周暗沉與疲憊感。",
+      "gif": ""
+    },
+    {
+      "name": "眼球運動",
+      "desc": "眼睛依序移動並遠望，放鬆眼外肌。",
+      "effect": "舒緩視覺壓力、提升精神感。",
+      "gif": ""
+    }
+  ],
+  "b_scores": {
+    "darkCircles": 7.8,
+    "acne": 6.1,
+    "comedones": 5.4,
+    "wrinkles": 4.2,
+    "spots": 6.9
+  },
+  "c_tips": [
+    "白天補水分次進行，連續 7 天觀察變化。",
+    "早餐增加蛋白質攝取，降低晚間含糖量。",
+    "防曬穩定可讓氣色與均勻度更穩。"
+  ],
+  "products": [
+    {
+      "name": "Calm Balance Serum",
+      "desc": "Lightweight support for redness and uneven texture.",
+      "tag": "Soothing",
+      "url": "#",
+      "image": "assets/background.jpg"
+    },
+    {
+      "name": "Barrier Repair Cream",
+      "desc": "Supports moisture retention and reduces dryness.",
+      "tag": "Barrier",
+      "url": "#",
+      "image": "assets/background.jpg"
+    },
+    {
+      "name": "Daily UV Shield",
+      "desc": "Basic daily UV care to stabilize complexion.",
+      "tag": "UV",
+      "url": "#",
+      "image": "assets/background.jpg"
+    }
+  ]
+}

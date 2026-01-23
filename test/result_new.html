@@ -1,0 +1,1098 @@
+<!doctype html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>分析結果</title>
+    <link rel="stylesheet" href="assets/app.css" />
+
+    <style>
+        /* ========================================
+       防止手機左右晃動
+       ======================================== */
+        html,
+        body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
+        /* ========================================
+       總覽頁樣式
+       ======================================== */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .section-card {
+            padding: 20px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, .95);
+            border: 1px solid rgba(0, 0, 0, .08);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .section-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 50px rgba(0, 0, 0, .12);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            color: rgba(24, 11, 10, .92);
+        }
+
+        .section-preview {
+            font-size: 14px;
+            color: rgba(24, 11, 10, .70);
+            line-height: 1.6;
+        }
+
+        .section-score {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, rgba(212, 165, 116, .95), rgba(232, 213, 183, .85));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 12px 0;
+        }
+
+        .section-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(212, 165, 116, .15);
+            color: rgba(166, 124, 82, .95);
+            margin-top: 8px;
+        }
+
+        /* A區特殊樣式 - 左右佈局 */
+        .section-card.card-a {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255, 220, 200, .95), rgba(255, 210, 180, .90));
+        }
+
+        .card-left {
+            flex-shrink: 0;
+        }
+
+        .card-right {
+            flex: 1;
+        }
+
+        /* 圓形分數 */
+        .score-circle {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+        }
+
+        .score-number {
+            font-size: 32px;
+            font-weight: 900;
+            color: rgba(212, 165, 116, .95);
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 10px;
+            color: rgba(24, 11, 10, .65);
+            margin-top: 4px;
+        }
+
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: rgba(24, 11, 10, .85);
+        }
+
+        .item-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ========================================
+       詳情頁 - 全螢幕滾動
+       ======================================== */
+        .detail-container {
+            display: none;
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .detail-container.active {
+            display: block;
+        }
+
+        .detail-section {
+            min-height: 100vh;
+            scroll-snap-align: start;
+            padding: 100px 20px 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .detail-content {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, .95);
+            border-radius: 22px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .10);
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .scroll-hint {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: rgba(24, 11, 10, .60);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* ========================================
+       橫向滑動卡片
+       ======================================== */
+        .horizontal-scroll {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 16px 0;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, .15);
+            border-radius: 999px;
+        }
+
+        .product-card {
+            flex: 0 0 240px;
+            scroll-snap-align: start;
+            background: rgba(255, 255, 255, .80);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, .08);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #f5f5f5;
+        }
+
+        .product-info {
+            padding: 16px;
+        }
+
+        .product-brand {
+            font-size: 12px;
+            color: rgba(24, 11, 10, .60);
+            margin-bottom: 4px;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: rgba(24, 11, 10, .92);
+        }
+
+        .product-ingredient {
+            font-size: 12px;
+            color: rgba(24, 11, 10, .70);
+            margin-bottom: 12px;
+        }
+
+        .product-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .product-link {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, .12);
+            background: rgba(255, 255, 255, .90);
+            text-decoration: none;
+            color: rgba(24, 11, 10, .85);
+            transition: all 0.2s;
+        }
+
+        .product-link:hover {
+            background: rgba(212, 165, 116, .15);
+            border-color: rgba(212, 165, 116, .30);
+        }
+
+        /* ========================================
+       按鈕樣式
+       ======================================== */
+        .back-btn {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            z-index: 100;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, .90);
+            border: 1px solid rgba(0, 0, 0, .10);
+            border-radius: 999px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, .16);
+        }
+
+        .save-report-btn {
+            width: 100%;
+            max-width: 400px;
+            margin: 32px auto 0;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, rgba(212, 165, 116, .95), rgba(232, 213, 183, .92));
+            border: none;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 900;
+            color: rgba(24, 11, 10, .92);
+            cursor: pointer;
+            box-shadow: 0 12px 32px rgba(212, 165, 116, .25);
+            transition: all 0.3s;
+        }
+
+        .save-report-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(212, 165, 116, .35);
+        }
+
+        /* ========================================
+       雷達圖樣式
+       ======================================== */
+        .radar-preview {
+            width: 100%;
+            max-width: 200px;
+            height: 150px;
+            margin: 16px auto;
+            background: rgba(212, 165, 116, .08);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(24, 11, 10, .50);
+            font-size: 12px;
+        }
+
+        .massage-card {
+            background: rgba(255, 255, 255, .95);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            border: 1px solid rgba(0, 0, 0, .08);
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .massage-gif {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            margin: 12px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(24, 11, 10, .40);
+            font-size: 13px;
+        }
+
+        /* ========================================
+       手機版調整
+       ======================================== */
+        @media (max-width: 768px) {
+            .stage {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .detail-section {
+                padding: 80px 12px 40px;
+            }
+
+            .detail-content {
+                padding: 24px 16px;
+            }
+
+            .back-btn {
+                top: 16px;
+                left: 16px;
+                font-size: 13px;
+                padding: 10px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ========================================
+       總覽頁面
+       ======================================== -->
+    <div id="overview-page">
+        <header>
+            <div class="brand">
+                <div class="logo"></div>
+                <div>
+                    <h1>分析結果</h1>
+                    <p>AI 皮膚分析報告</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn" onclick="location.href='analyze.html'">再分析</button>
+                <button class="btn" onclick="location.href='text.html'">回首頁</button>
+            </div>
+        </header>
+
+        <div class="stage">
+            <div class="card" style="max-width: 1000px;">
+                <div class="card-head">
+                    <div>
+                        <div class="title">您的膚況分析報告</div>
+                        <div class="sub">點擊任一區域查看詳細資訊</div>
+                    </div>
+                </div>
+
+                <div class="body">
+                    <!-- 4個區域卡片 -->
+                    <div class="overview-grid">
+                        <!-- A區 - 活力氣色指南 -->
+                        <div class="section-card" onclick="showDetail('section-a')">
+                            <div class="section-title">A. 活力氣色指南</div>
+                            <div class="section-score" id="overview-score-a">78</div>
+                            <div class="section-preview">
+                                AI 分析您的氣色狀態,提供即時改善建議
+                            </div>
+                            <div class="section-badge">點擊查看詳情 →</div>
+                        </div>
+
+                        <!-- B區 - 智能膚況解析 -->
+                        <div class="section-card" onclick="showDetail('section-b')">
+                            <div class="section-title">B. 智能膚況解析</div>
+                            <div class="radar-preview">五角雷達圖預覽</div>
+                            <div class="section-preview">
+                                偵測到 <strong id="overview-b-count">2 項</strong> 主要問題
+                            </div>
+                            <div class="section-badge">點擊查看詳情 →</div>
+                        </div>
+
+                        <!-- C區 - 由內而外養膚 -->
+                        <div class="section-card" onclick="showDetail('section-c')">
+                            <div class="section-title">C. 由內而外養膚</div>
+                            <div class="section-preview">
+                                根據您的問卷結果,提供個人化飲食與生活建議
+                            </div>
+                            <div class="section-badge">點擊查看詳情 →</div>
+                        </div>
+
+                        <!-- D區 - 智慧配方 -->
+                        <div class="section-card" onclick="showDetail('section-d')">
+                            <div class="section-title">D. 智慧配方</div>
+                            <div class="section-preview">
+                                <strong id="overview-d-count">6 款</strong> 精選產品推薦
+                            </div>
+                            <div class="section-badge">點擊查看詳情 →</div>
+                        </div>
+                    </div>
+
+                    <!-- 儲存報告按鈕 -->
+                    <button class="save-report-btn" onclick="saveToLine()">
+                        儲存我的報告
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+       詳情頁面 - 全螢幕滾動
+       ======================================== -->
+    <div id="detail-page" class="detail-container">
+        <button class="back-btn" onclick="backToOverview()">← 返回總覽</button>
+
+        <!-- A區詳情 - 活力氣色指南 -->
+        <div class="detail-section" data-section="llm_analysis">
+            <div class="detail-content">
+                <h2 style="margin-top:0;">A. 活力氣色指南</h2>
+
+                <!-- 使用者照片 -->
+                <div style="text-align:center; margin:20px 0;">
+                    <img id="user-photo-a"
+                        style="max-width:100%; max-height:300px; border-radius:16px; display:none;" />
+                    <div style="font-size:13px; color:rgba(24,11,10,.60); margin-top:8px;">您的拍攝照片</div>
+                </div>
+
+                <!-- AI 診斷 -->
+                <div class="massage-card">
+                    <h3>AI 診斷</h3>
+                    <p id="ai-diagnosis">正在分析您的氣色狀態...</p>
+                </div>
+
+                <!-- 激勵的話 -->
+                <div class="massage-card">
+                    <h3>給您的鼓勵</h3>
+                    <p id="ai-encouragement">您做得很好!繼續保持!</p>
+                </div>
+
+                <!-- 推薦按摩 (1-2個,橫向滑動) -->
+                <div class="massage-card">
+                    <h3>推薦按摩</h3>
+                    <div class="horizontal-scroll" id="massage-list">
+                        <div class="product-card">
+                            <div class="massage-gif">按摩 GIF 1</div>
+                            <div class="product-info">
+                                <div class="product-name">臉部按摩 (2分鐘)</div>
+                                <div class="product-ingredient">促進血液循環,提升氣色</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-hint">往下滑動查看膚況分析 ↓</div>
+        </div>
+
+        <!-- B區詳情 - 智能膚況解析 -->
+        <div class="detail-section" data-section="model_detection">
+            <div class="detail-content">
+                <h2 style="margin-top:0;">B. 智能膚況解析</h2>
+
+                <!-- 標註圖片 -->
+                <div style="text-align:center; margin:20px 0;">
+                    <img id="annotated-photo"
+                        style="max-width:100%; max-height:300px; border-radius:16px; display:none;" />
+                    <div style="font-size:13px; color:rgba(24,11,10,.60); margin-top:8px;">問題區域標註圖</div>
+                </div>
+
+                <!-- 五角雷達圖 -->
+                <div style="background:rgba(255,255,255,.80); border-radius:16px; padding:20px; margin:20px 0;">
+                    <h3>五角分析圖</h3>
+                    <canvas id="radar-chart" width="400" height="300" style="max-width:100%;"></canvas>
+                    <div style="font-size:12px; color:rgba(24,11,10,.60); margin-top:12px; text-align:center;">
+                        5 項指標: 細紋、斑、痘痘、粉刺、黑眼圈
+                    </div>
+                </div>
+
+                <!-- 最嚴重的 2 個問題 -->
+                <div class="massage-card">
+                    <h3>主要問題 (最嚴重的 2 項)</h3>
+                    <div id="top-issues">
+                        <div style="padding:12px; background:rgba(212,165,116,.08); border-radius:12px; margin:8px 0;">
+                            <strong>問題 1: 痘痘</strong><br>
+                            嚴重程度: <strong>8/10</strong><br>
+                            <span style="font-size:12px; color:rgba(24,11,10,.70);">T 字部位較為明顯</span>
+                        </div>
+                        <div style="padding:12px; background:rgba(212,165,116,.08); border-radius:12px; margin:8px 0;">
+                            <strong>問題 2: 細紋</strong><br>
+                            嚴重程度: <strong>7/10</strong><br>
+                            <span style="font-size:12px; color:rgba(24,11,10,.70);">眼周區域</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-hint">往下滑動查看飲食建議 ↓</div>
+        </div>
+
+        <!-- C區詳情 - 由內而外養膚 -->
+        <div class="detail-section" data-section="diet_advice">
+            <div class="detail-content">
+                <h2 style="margin-top:0;">C. 由內而外養膚</h2>
+
+                <!-- 營養補充 -->
+                <div class="massage-card">
+                    <h3>營養補充建議</h3>
+                    <ul id="c-tips" style="line-height:1.8;">
+                        <li>深綠色蔬菜 (菠菜、羽衣甘藍)</li>
+                        <li>Omega-3 食物 (鮭魚、核桃)</li>
+                        <li>維生素 C 水果 (奇異果、柑橘)</li>
+                        <li>堅果與全穀類</li>
+                    </ul>
+                </div>
+
+                <!-- 作息調整 -->
+                <div class="massage-card">
+                    <h3>作息調整建議</h3>
+                    <p>建議固定就寢時間,每晚睡眠 7-8 小時,連續 7 天觀察氣色變化。</p>
+                </div>
+
+                <!-- 生活習慣 -->
+                <div class="massage-card">
+                    <h3>生活習慣改善</h3>
+                    <p>保持規律運動,每週至少 3 次,每次 30 分鐘。避免過度曝曬,做好防曬措施。</p>
+                </div>
+            </div>
+            <div class="scroll-hint">往下滑動查看產品推薦 ↓</div>
+        </div>
+
+        <!-- D區詳情 - 智慧配方 -->
+        <div class="detail-section" data-section="product_recommendation">
+            <div class="detail-content">
+                <h2 style="margin-top:0;">D. 智慧配方</h2>
+
+                <!-- 針對問題 A 的成分 -->
+                <div class="massage-card">
+                    <h3>針對痘痘問題</h3>
+                    <p><strong>主攻手:</strong> 水楊酸</p>
+                    <p><strong>核心成分:</strong> 茶樹精油、煙醯胺</p>
+                    <p style="font-size:13px; color:rgba(24,11,10,.70);">
+                        水楊酸能深入毛孔,溶解油脂和角質,有效改善痘痘問題。
+                    </p>
+                </div>
+
+                <!-- 針對問題 B 的成分 -->
+                <div class="massage-card">
+                    <h3>針對細紋問題</h3>
+                    <p><strong>主攻手:</strong> 視黃醇 (A醇)</p>
+                    <p><strong>核心成分:</strong> 玻尿酸、胜肽</p>
+                    <p style="font-size:13px; color:rgba(24,11,10,.70);">
+                        視黃醇能促進膠原蛋白生成,減少細紋和皺紋。
+                    </p>
+                </div>
+
+                <!-- 商品推薦 (6個,橫向滑動) -->
+                <div class="massage-card">
+                    <h3>精選產品推薦</h3>
+                    <div class="horizontal-scroll" id="product-list">
+                        <!-- 產品 1 -->
+                        <div class="product-card">
+                            <img class="product-image"
+                                src="https://via.placeholder.com/240x180/D4A574/FFFFFF?text=Product+1" alt="產品圖片 1">
+                            <div class="product-info">
+                                <div class="product-brand">品牌名稱 A</div>
+                                <div class="product-name">水楊酸淨痘精華</div>
+                                <div class="product-ingredient">含有: 水楊酸、茶樹精油</div>
+                                <div class="product-links">
+                                    <a href="#" class="product-link">前往官網 →</a>
+                                    <a href="#" class="product-link">前往 momo →</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 產品 2 -->
+                        <div class="product-card">
+                            <img class="product-image"
+                                src="https://via.placeholder.com/240x180/E8D5B7/FFFFFF?text=Product+2" alt="產品圖片 2">
+                            <div class="product-info">
+                                <div class="product-brand">品牌名稱 B</div>
+                                <div class="product-name">A醇抗皺精華液</div>
+                                <div class="product-ingredient">含有: 視黃醇、玻尿酸</div>
+                                <div class="product-links">
+                                    <a href="#" class="product-link">前往官網 →</a>
+                                    <a href="#" class="product-link">前往 momo →</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 產品 3 -->
+                        <div class="product-card">
+                            <img class="product-image"
+                                src="https://via.placeholder.com/240x180/D4A574/FFFFFF?text=Product+3" alt="產品圖片 3">
+                            <div class="product-info">
+                                <div class="product-brand">品牌名稱 C</div>
+                                <div class="product-name">煙醯胺亮白精華</div>
+                                <div class="product-ingredient">含有: 煙醯胺、維生素C</div>
+                                <div class="product-links">
+                                    <a href="#" class="product-link">前往官網 →</a>
+                                    <a href="#" class="product-link">前往 momo →</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 產品 4 -->
+                        <div class="product-card">
+                            <img class="product-image"
+                                src="https://via.placeholder.com/240x180/E8D5B7/FFFFFF?text=Product+4" alt="產品圖片 4">
+                            <div class="product-info">
+                                <div class="product-brand">品牌名稱 D</div>
+                                <div class="product-name">玻尿酸保濕精華</div>
+                                <div class="product-ingredient">含有: 玻尿酸、神經醯胺</div>
+                                <div class="product-links">
+                                    <a href="#" class="product-link">前往官網 →</a>
+                                    <a href="#" class="product-link">前往 momo →</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 產品 5 -->
+                        <div class="product-card">
+                            <img class="product-image"
+                                src="https://via.placeholder.com/240x180/D4A574/FFFFFF?text=Product+5" alt="產品圖片 5">
+                            <div class="product-info">
+                                <div class="product-brand">品牌名稱 E</div>
+                                <div class="product-name">胜肽緊緻精華</div>
+                                <div class="product-ingredient">含有: 六胜肽、膠原蛋白</div>
+                                <div class="product-links">
+                                    <a href="#" class="product-link">前往官網 →</a>
+                                    <a href="#" class="product-link">前往 momo →</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 產品 6 -->
+                        <div class="product-card">
+                            <img class="product-image"
+                                src="https://via.placeholder.com/240x180/E8D5B7/FFFFFF?text=Product+6" alt="產品圖片 6">
+                            <div class="product-info">
+                                <div class="product-brand">品牌名稱 F</div>
+                                <div class="product-name">維生素C淡斑精華</div>
+                                <div class="product-ingredient">含有: 維生素C、熊果素</div>
+                                <div class="product-links">
+                                    <a href="#" class="product-link">前往官網 →</a>
+                                    <a href="#" class="product-link">前往 momo →</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 儲存報告按鈕 -->
+                <button class="save-report-btn" onclick="saveToLine()">
+                    儲存我的報告
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ========================================
+        // 工具函數
+        // ========================================
+        function toast(msg) {
+            const el = document.getElementById('toast');
+            if (!el) return;
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 2000);
+        }
+
+        // ========================================
+        // 頁面切換
+        // ========================================
+        function showDetail(sectionId) {
+            document.getElementById('overview-page').style.display = 'none';
+            document.getElementById('detail-page').classList.add('active');
+
+            // 滾動到對應區域
+            const sectionMap = {
+                'section-a': 0,
+                'section-b': 1,
+                'section-c': 2,
+                'section-d': 3
+            };
+
+            const sections = document.querySelectorAll('.detail-section');
+            const targetIndex = sectionMap[sectionId] || 0;
+            sections[targetIndex].scrollIntoView({ behavior: 'smooth' });
+
+            // GA 追蹤
+            trackSection(sections[targetIndex].dataset.section);
+        }
+
+        function backToOverview() {
+            document.getElementById('detail-page').classList.remove('active');
+            document.getElementById('overview-page').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ========================================
+        // GA 追蹤
+        // ========================================
+        function trackSection(sectionName) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'section_view', {
+                    section_name: sectionName,
+                    page_path: '/result#' + sectionName
+                });
+            }
+            console.log('GA Track:', sectionName);
+        }
+
+        // Intersection Observer for auto-tracking
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const sectionName = entry.target.dataset.section;
+                    trackSection(sectionName);
+                }
+            });
+        }, {
+            threshold: 0.5
+        });
+
+        // 監聽所有詳情區域
+        document.querySelectorAll('.detail-section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // ========================================
+        // 儲存報告到 LINE
+        // ========================================
+        function saveToLine() {
+            toast('正在儲存報告...');
+            // TODO: 實作 LINE 回傳功能
+            setTimeout(() => {
+                toast('報告已儲存!');
+            }, 1000);
+        }
+
+        // ========================================
+        // 載入資料
+        // ========================================
+        function normalizeNumber(value, fallback = 0) {
+            const n = Number(value);
+            return Number.isFinite(n) ? n : fallback;
+        }
+
+        async function fetchMockPayload() {
+            try {
+                const res = await fetch('./api/mock_result.json', { cache: 'no-store' });
+                if (!res.ok) return null;
+                const data = await res.json();
+                return data && typeof data === 'object' ? data : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function getDemoPayload() {
+            return {
+                timestamp: new Date().toISOString(),
+                overall: 78,
+                a_score: 80,
+                metrics: {
+                    glow: 72,
+                    complexion: 80,
+                    blemish: 64,
+                    oilBalance: 70,
+                    evenness: 75
+                },
+                b_scores: {
+                    darkCircles: 7.5,
+                    acne: 6.2,
+                    comedones: 5.4,
+                    wrinkles: 4.8,
+                    spots: 6.8
+                },
+                c_tips: [
+                    'Keep hydration steady and avoid late-night sugar spikes.',
+                    'Add protein at breakfast and keep sleep consistent.',
+                    'Sun protection keeps tone more stable day-to-day.'
+                ],
+                products: []
+            };
+        }
+
+        function loadResult() {
+            const keys = ['result', 'ai_result', 'analysis_result', 'payload'];
+            for (const k of keys) {
+                const raw = localStorage.getItem(k);
+                if (!raw) continue;
+                try {
+                    return JSON.parse(raw);
+                } catch (e) {
+                    console.error('Parse error:', e);
+                }
+            }
+            return null;
+        }
+
+        async function getPayload() {
+            let payload = loadResult();
+            if (!payload) payload = await fetchMockPayload();
+            return payload || getDemoPayload();
+        }
+
+        function drawRadar(canvas, labels, values, maxValue = 10) {
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width;
+            const H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
+
+            const cx = W / 2;
+            const cy = H / 2;
+            const radius = Math.min(W, H) * 0.36;
+            const N = labels.length;
+
+            ctx.lineWidth = 1;
+            for (let k = 1; k <= 5; k++) {
+                const r = radius * (k / 5);
+                ctx.beginPath();
+                for (let i = 0; i < N; i++) {
+                    const a = (-Math.PI / 2) + (i * 2 * Math.PI / N);
+                    const x = cx + r * Math.cos(a);
+                    const y = cy + r * Math.sin(a);
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.strokeStyle = 'rgba(0,0,0,.12)';
+                ctx.stroke();
+            }
+
+            for (let i = 0; i < N; i++) {
+                const a = (-Math.PI / 2) + (i * 2 * Math.PI / N);
+                const x = cx + radius * Math.cos(a);
+                const y = cy + radius * Math.sin(a);
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = 'rgba(0,0,0,.12)';
+                ctx.stroke();
+
+                const lx = cx + (radius + 16) * Math.cos(a);
+                const ly = cy + (radius + 16) * Math.sin(a);
+                ctx.fillStyle = 'rgba(24,11,10,.72)';
+                ctx.font = '12px -apple-system, Segoe UI, sans-serif';
+                ctx.textAlign = (Math.cos(a) > 0.2) ? 'left' : (Math.cos(a) < -0.2 ? 'right' : 'center');
+                ctx.textBaseline = (Math.sin(a) > 0.2) ? 'top' : (Math.sin(a) < -0.2 ? 'bottom' : 'middle');
+                ctx.fillText(labels[i], lx, ly);
+            }
+
+            const vals = values.map(v => Math.max(0, Math.min(maxValue, normalizeNumber(v))) / maxValue);
+            ctx.beginPath();
+            for (let i = 0; i < N; i++) {
+                const a = (-Math.PI / 2) + (i * 2 * Math.PI / N);
+                const r = radius * vals[i];
+                const x = cx + r * Math.cos(a);
+                const y = cy + r * Math.sin(a);
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(255,157,184,.22)';
+            ctx.strokeStyle = 'rgba(216,189,91,.85)';
+            ctx.lineWidth = 2;
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function renderASection(payload) {
+            const diagnosis = document.getElementById('ai-diagnosis');
+            const encouragement = document.getElementById('ai-encouragement');
+            const list = document.getElementById('massage-list');
+
+            const summary = (payload.a_summary ?? payload.aSummary ?? '').toString().trim();
+            if (diagnosis) diagnosis.textContent = summary || 'Overall condition looks stable with minor fatigue cues.';
+
+            const cheer = (payload.a_encouragement ?? payload.aEncouragement ?? '').toString().trim();
+            if (encouragement) encouragement.textContent = cheer || 'Keep it up ? small adjustments go a long way.';
+
+            if (!list) return;
+            const actions = Array.isArray(payload.a_actions ?? payload.aActions)
+                ? (payload.a_actions ?? payload.aActions).filter(Boolean)
+                : [];
+
+            list.innerHTML = '';
+            actions.forEach((a) => {
+                const name = (a.name ?? '').toString().trim() || 'Recommended action';
+                const desc = (a.desc ?? '').toString().trim() || 'Follow the guidance for 1?2 minutes.';
+                const gif = (a.gif ?? '').toString().trim();
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <div class="massage-gif">${gif ? `<img src="${gif}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;" />` : '?? GIF'}</div>
+                    <div class="product-info">
+                        <div class="product-name">${name}</div>
+                        <div class="product-ingredient">${desc}</div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function renderBSection(payload) {
+            const bScoresRaw = payload.b_scores ?? payload.bScores ?? {};
+            const labels = [
+                { key: 'darkCircles', name: '???' },
+                { key: 'acne', name: '??' },
+                { key: 'comedones', name: '??' },
+                { key: 'wrinkles', name: '??' },
+                { key: 'spots', name: '?' }
+            ];
+
+            const values = labels.map((l) => normalizeNumber(bScoresRaw[l.key] ?? bScoresRaw[l.name], 5));
+            const pairs = labels.map((l, i) => ({ name: l.name, score: values[i] }));
+            pairs.sort((a, b) => b.score - a.score);
+            const top2 = pairs.slice(0, 2);
+
+            const countEl = document.getElementById('overview-b-count');
+            if (countEl) countEl.textContent = String(top2.length || 0);
+
+            const topIssues = document.getElementById('top-issues');
+            if (topIssues) {
+                topIssues.innerHTML = '';
+                top2.forEach((item, idx) => {
+                    const box = document.createElement('div');
+                    box.style.padding = '12px';
+                    box.style.background = 'rgba(212,165,116,.08)';
+                    box.style.borderRadius = '12px';
+                    box.style.margin = '8px 0';
+                    box.innerHTML = `
+                        <strong>?? ${idx + 1}: ${item.name}</strong><br>
+                        ????: <strong>${item.score.toFixed(1)}/10</strong>
+                    `;
+                    topIssues.appendChild(box);
+                });
+            }
+
+            const radar = document.getElementById('radar-chart');
+            if (radar) drawRadar(radar, labels.map(l => l.name), values, 10);
+        }
+
+        function renderCSection(payload) {
+            const list = document.getElementById('c-tips');
+            if (!list) return;
+            const tips = Array.isArray(payload.c_tips ?? payload.cTips)
+                ? (payload.c_tips ?? payload.cTips).filter(Boolean)
+                : [];
+            if (!tips.length) return;
+            list.innerHTML = '';
+            tips.forEach((t) => {
+                const li = document.createElement('li');
+                li.textContent = t;
+                list.appendChild(li);
+            });
+        }
+
+        function renderDSection(payload) {
+            const list = document.getElementById('product-list');
+            if (!list) return;
+            const products = Array.isArray(payload.d_products)
+                ? payload.d_products
+                : (Array.isArray(payload.products) ? payload.products : []);
+            const items = products.filter(Boolean);
+
+            const countEl = document.getElementById('overview-d-count');
+            if (countEl) countEl.textContent = String(items.length || 0);
+
+            if (!items.length) return;
+            list.innerHTML = '';
+            items.forEach((p) => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                const img = p.image || p.img || p.photo || 'assets/background.jpg';
+                const brand = p.brand || p.tag || '??';
+                const name = p.name || '????';
+                const ingredient = p.ingredient || p.desc || p.reason || '';
+                const url = p.url || '#';
+
+                card.innerHTML = `
+                    <img class="product-image" src="${img}" alt="${name}">
+                    <div class="product-info">
+                        <div class="product-brand">${brand}</div>
+                        <div class="product-name">${name}</div>
+                        <div class="product-ingredient">${ingredient}</div>
+                        <div class="product-links">
+                            <a href="${url}" class="product-link">??</a>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        async function loadData() {
+            const result = await getPayload();
+            window._payloadCache = result;
+
+            if (result && result.overall) {
+                const scoreEl = document.getElementById('overview-score-a');
+                if (scoreEl) {
+                    scoreEl.textContent = normalizeNumber(result.a_score ?? result.aScore ?? result.overall, 0).toFixed(0);
+                }
+            }
+
+            const userPhoto = localStorage.getItem('user_photo');
+            if (userPhoto) {
+                const photoEl = document.getElementById('user-photo-a');
+                if (photoEl) {
+                    photoEl.src = userPhoto;
+                    photoEl.style.display = 'block';
+                }
+            }
+
+            renderASection(result);
+            renderBSection(result);
+            renderCSection(result);
+            renderDSection(result);
+
+            toast('Data loaded');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => loadData());
+    </script>
+</body>
+
+</html>
