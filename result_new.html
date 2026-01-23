@@ -48,19 +48,19 @@
             font-size: 18px;
             font-weight: 900;
             margin-bottom: 12px;
-            color: rgba(24, 11, 10, .92);
+            color: var(--text-dark);
         }
 
         .section-preview {
             font-size: 14px;
-            color: rgba(24, 11, 10, .70);
+            color: var(--muted);
             line-height: 1.6;
         }
 
         .section-score {
             font-size: 36px;
             font-weight: 900;
-            background: linear-gradient(135deg, rgba(212, 165, 116, .95), rgba(232, 213, 183, .85));
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -70,11 +70,11 @@
         .section-badge {
             display: inline-block;
             padding: 4px 12px;
-            border-radius: 999px;
+            border-radius: var(--radius-full);
             font-size: 11px;
             font-weight: 700;
-            background: rgba(212, 165, 116, .15);
-            color: rgba(166, 124, 82, .95);
+            background: rgba(255, 155, 130, 0.12);
+            color: var(--accent-dark);
             margin-top: 8px;
         }
 
@@ -83,7 +83,7 @@
             display: flex;
             gap: 20px;
             align-items: center;
-            background: linear-gradient(135deg, rgba(255, 220, 200, .95), rgba(255, 210, 180, .90));
+            background: linear-gradient(135deg, rgba(255, 155, 130, 0.15), rgba(255, 180, 162, 0.12));
         }
 
         .card-left {
@@ -110,13 +110,13 @@
         .score-number {
             font-size: 32px;
             font-weight: 900;
-            color: rgba(212, 165, 116, .95);
+            color: var(--accent);
             line-height: 1;
         }
 
         .score-label {
             font-size: 10px;
-            color: rgba(24, 11, 10, .65);
+            color: var(--muted);
             margin-top: 4px;
         }
 
@@ -132,7 +132,7 @@
             align-items: center;
             gap: 8px;
             font-size: 13px;
-            color: rgba(24, 11, 10, .85);
+            color: var(--text);
         }
 
         .item-icon {
@@ -180,7 +180,7 @@
             text-align: center;
             margin-top: 24px;
             font-size: 13px;
-            color: rgba(24, 11, 10, .60);
+            color: var(--muted);
             animation: bounce 2s infinite;
         }
 
@@ -242,7 +242,7 @@
 
         .product-brand {
             font-size: 12px;
-            color: rgba(24, 11, 10, .60);
+            color: var(--muted);
             margin-bottom: 4px;
         }
 
@@ -250,12 +250,12 @@
             font-size: 14px;
             font-weight: 700;
             margin-bottom: 8px;
-            color: rgba(24, 11, 10, .92);
+            color: var(--text-dark);
         }
 
         .product-ingredient {
             font-size: 12px;
-            color: rgba(24, 11, 10, .70);
+            color: var(--muted);
             margin-bottom: 12px;
         }
 
@@ -273,13 +273,13 @@
             border: 1px solid rgba(0, 0, 0, .12);
             background: rgba(255, 255, 255, .90);
             text-decoration: none;
-            color: rgba(24, 11, 10, .85);
+            color: var(--text);
             transition: all 0.2s;
         }
 
         .product-link:hover {
-            background: rgba(212, 165, 116, .15);
-            border-color: rgba(212, 165, 116, .30);
+            background: rgba(255, 155, 130, 0.12);
+            border-color: var(--accent);
         }
 
         /* ========================================
@@ -310,20 +310,20 @@
             max-width: 400px;
             margin: 32px auto 0;
             padding: 16px 32px;
-            background: linear-gradient(135deg, rgba(212, 165, 116, .95), rgba(232, 213, 183, .92));
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
             border: none;
-            border-radius: 999px;
+            border-radius: var(--radius-full);
             font-size: 16px;
             font-weight: 900;
-            color: rgba(24, 11, 10, .92);
+            color: white;
             cursor: pointer;
-            box-shadow: 0 12px 32px rgba(212, 165, 116, .25);
+            box-shadow: 0 12px 32px rgba(255, 155, 130, 0.25);
             transition: all 0.3s;
         }
 
         .save-report-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 16px 40px rgba(212, 165, 116, .35);
+            box-shadow: 0 16px 40px rgba(255, 155, 130, 0.35);
         }
 
         /* ========================================
@@ -341,7 +341,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(24, 11, 10, .50);
+            color: var(--text-light);
             font-size: 12px;
         }
 
@@ -361,13 +361,13 @@
             width: 100%;
             max-width: 300px;
             height: 200px;
-            background: #f5f5f5;
+            background: var(--bg-secondary);
             border-radius: 12px;
             margin: 12px auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(24, 11, 10, .40);
+            color: var(--text-light);
             font-size: 13px;
         }
 
@@ -439,7 +439,8 @@
                         <div class="section-card" onclick="showDetail('section-b')">
                             <div class="section-title">B. 智能膚況解析</div>
                             <div class="radar-preview">
-                                <canvas id="radar-chart-overview" width="200" height="150" style="display:block; margin:0 auto;"></canvas>
+                                <canvas id="radar-chart-overview" width="200" height="150"
+                                    style="display:block; margin:0 auto;"></canvas>
                             </div>
                             <div class="section-preview">
                                 偵測到 <strong>2 項</strong> 主要問題
