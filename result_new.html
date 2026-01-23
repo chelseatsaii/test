@@ -83,7 +83,7 @@
             display: flex;
             gap: 20px;
             align-items: center;
-            background: linear-gradient(135deg, rgba(255, 155, 130, 0.15), rgba(255, 180, 162, 0.12));
+            /* 移除特殊背景，統一使用白色 */
         }
 
         .card-left {
@@ -372,6 +372,118 @@
         }
 
         /* ========================================
+       AI 診斷區塊樣式
+       ======================================== */
+        .diagnosis-positive {
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.04));
+            border-left: 4px solid var(--accent);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .diagnosis-positive p {
+            margin: 0;
+            line-height: 1.7;
+            color: var(--text);
+        }
+
+        .diagnosis-problems {
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(255, 155, 130, 0.08), rgba(255, 155, 130, 0.04));
+            border-left: 4px solid var(--accent-dark);
+            border-radius: 12px;
+        }
+
+        .diagnosis-problems h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: var(--text-dark);
+        }
+
+        .diagnosis-problems p {
+            margin: 0;
+            line-height: 1.7;
+            color: var(--text);
+        }
+
+        /* ========================================
+       按摩卡片樣式
+       ======================================== */
+        .massage-item {
+            flex: 0 0 300px;
+            scroll-snap-align: start;
+            background: rgba(255, 255, 255, .90);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, .08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .massage-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, .10);
+        }
+
+        .massage-gif-container {
+            width: 100%;
+            height: 200px;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .massage-gif-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .massage-info {
+            padding: 16px;
+        }
+
+        .massage-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .massage-duration {
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .massage-steps,
+        .massage-benefits {
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .massage-steps strong,
+        .massage-benefits strong {
+            display: block;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .massage-steps p,
+        .massage-benefits p {
+            margin: 0;
+            color: var(--muted);
+            white-space: pre-line;
+        }
+
+        /* ========================================
        手機版調整
        ======================================== */
         @media (max-width: 768px) {
@@ -393,6 +505,10 @@
                 left: 16px;
                 font-size: 13px;
                 padding: 10px 16px;
+            }
+
+            .massage-item {
+                flex: 0 0 280px;
             }
         }
     </style>
@@ -496,27 +612,25 @@
 
                 <!-- AI 診斷 -->
                 <div class="massage-card">
-                    <h3>AI 診斷</h3>
-                    <p id="ai-diagnosis">正在分析您的氣色狀態...</p>
+                    <h3>💬 AI 氣色診斷</h3>
+
+                    <!-- 正面評價 -->
+                    <div class="diagnosis-positive">
+                        <p id="ai-positive-feedback">您的氣色整體穩定，膚色均勻度良好，顯示出良好的作息與保養習慣。光澤度適中，整體呈現健康的自然光感。</p>
+                    </div>
+
+                    <!-- 問題分析 -->
+                    <div class="diagnosis-problems">
+                        <h4>需要關注的部分</h4>
+                        <p id="ai-problem-analysis">眼周區域略顯疲態，建議加強保濕與按摩促進循環。T 字部位油脂分泌稍多，可調整清潔頻率並選用清爽型保養品。</p>
+                    </div>
                 </div>
 
-                <!-- 激勵的話 -->
+                <!-- 推薦按摩 -->
                 <div class="massage-card">
-                    <h3>給您的鼓勵</h3>
-                    <p id="ai-encouragement">您做得很好!繼續保持!</p>
-                </div>
-
-                <!-- 推薦按摩 (1-2個,橫向滑動) -->
-                <div class="massage-card">
-                    <h3>推薦按摩</h3>
+                    <h3>🌸 推薦按摩</h3>
                     <div class="horizontal-scroll" id="massage-list">
-                        <div class="product-card">
-                            <div class="massage-gif">按摩 GIF 1</div>
-                            <div class="product-info">
-                                <div class="product-name">臉部按摩 (2分鐘)</div>
-                                <div class="product-ingredient">促進血液循環,提升氣色</div>
-                            </div>
-                        </div>
+                        <!-- 動態渲染按摩卡片 -->
                     </div>
                 </div>
             </div>
@@ -949,8 +1063,102 @@
             };
         }
 
+        // ========================================
+        // A 區：渲染 AI 診斷與按摩推薦
+        // ========================================
+
+        /**
+         * 渲染 AI 診斷內容
+         */
+        function renderAIDiagnosis(diagnosis) {
+            const positiveFeedback = document.getElementById('ai-positive-feedback');
+            const problemAnalysis = document.getElementById('ai-problem-analysis');
+
+            if (positiveFeedback && diagnosis && diagnosis.positive_feedback) {
+                positiveFeedback.textContent = diagnosis.positive_feedback;
+            }
+
+            if (problemAnalysis && diagnosis && diagnosis.problem_analysis) {
+                problemAnalysis.textContent = diagnosis.problem_analysis;
+            }
+        }
+
+        /**
+         * 渲染按摩推薦
+         */
+        function renderMassageRecommendations(massages) {
+            const massageList = document.getElementById('massage-list');
+            if (!massageList) return;
+
+            // 如果沒有資料，使用假資料
+            if (!massages || massages.length === 0) {
+                massages = [
+                    {
+                        name: "眼周舒緩按摩",
+                        gif_url: "https://via.placeholder.com/300x200/EDF2F7/718096?text=眼周按摩",
+                        duration: "2 分鐘",
+                        steps: "1. 用指腹輕按太陽穴 3 秒\n2. 沿眼眶由內向外畫圈 5 次\n3. 輕壓眼頭穴位 3 秒",
+                        benefits: "促進眼周血液循環，減緩疲勞感，提升眼部明亮度"
+                    },
+                    {
+                        name: "臉部提拉按摩",
+                        gif_url: "https://via.placeholder.com/300x200/EDF2F7/718096?text=臉部提拉",
+                        duration: "3 分鐘",
+                        steps: "1. 從下巴往耳際提拉 10 次\n2. 額頭由內向外推 10 次\n3. 鼻翼兩側輕按 5 次",
+                        benefits: "提升臉部輪廓，促進淋巴排毒，改善整體氣色"
+                    }
+                ];
+            }
+
+            massageList.innerHTML = massages.map(massage => `
+                <div class="massage-item">
+                    <div class="massage-gif-container">
+                        <img src="${massage.gif_url}" 
+                             alt="${massage.name}" 
+                             class="massage-gif-img"
+                             onerror="this.parentElement.innerHTML='<div style=\\'padding:20px;text-align:center;color:var(--muted)\\'>GIF 載入中...</div>'">
+                    </div>
+                    <div class="massage-info">
+                        <div class="massage-name">${massage.name}</div>
+                        <div class="massage-duration">⏱️ ${massage.duration}</div>
+                        <div class="massage-steps">
+                            <strong>動作說明：</strong>
+                            <p>${massage.steps}</p>
+                        </div>
+                        <div class="massage-benefits">
+                            <strong>效果：</strong>
+                            <p>${massage.benefits}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * 載入 A 區資料
+         */
+        function loadSectionAData() {
+            const result = loadResult();
+
+            // 渲染 AI 診斷（如果有資料）
+            if (result && result.ai_diagnosis) {
+                renderAIDiagnosis(result.ai_diagnosis);
+            }
+
+            // 渲染按摩推薦（如果有資料，否則使用假資料）
+            if (result && result.massage_recommendations) {
+                renderMassageRecommendations(result.massage_recommendations);
+            } else {
+                renderMassageRecommendations(); // 使用假資料
+            }
+        }
+
         // 頁面載入時執行
-        window.addEventListener('DOMContentLoaded', loadData);
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            loadSectionAData(); // 載入 A 區資料
+        });
+
         window.showDetail = showDetail;
         window.backToOverview = backToOverview;
         window.saveToLine = saveToLine;
