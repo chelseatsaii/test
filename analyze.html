@@ -963,7 +963,7 @@
 
         if (SKIP_UPLOAD) {
           localStorage.removeItem("result");
-          location.href = "survery_new.html?demo=1";
+          location.href = "survey_new.html?demo=1";
           return;
         }
 
@@ -994,7 +994,7 @@
         const payload = await res.json();
         localStorage.setItem("result", JSON.stringify(payload));
 
-        location.href = "survery_new.html";
+        location.href = "survey_new.html";
       } catch (e) {
         console.error(e);
         toast("發生錯誤，請重試");
