@@ -541,7 +541,7 @@
                         localStorage.setItem("survey", JSON.stringify(survey));
 
                         // 3. 取得照片
-                        const photo = localStorage.getItem('photo');
+                        const photo = localStorage.getItem('user_photo');
                         if (!photo) {
                             throw new Error('找不到照片,請重新拍照');
                         }
