@@ -14,7 +14,7 @@ class ActionRecommendationManager {
    */
   async init() {
     try {
-      const response = await fetch('/data/action-recommendations.json');
+      const response = await fetch('/cji102_project/data/action-recommendations.json');
       if (!response.ok) {
         throw new Error('Failed to load action recommendations data');
       }
@@ -100,7 +100,7 @@ class ActionRecommendationManager {
     card.setAttribute('data-action-id', action.id);
 
     // 判斷媒體類型
-    const mediaElement = action.mediaType === 'video' 
+    const mediaElement = action.mediaType === 'video'
       ? `<video class="action-media" controls loop muted playsinline>
            <source src="${action.mediaUrl}" type="video/mp4">
            您的瀏覽器不支援影片播放。
