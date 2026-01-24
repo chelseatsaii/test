@@ -609,6 +609,31 @@
             font-weight: 500;
         }
 
+        /* 產品卡片成分標籤樣式 */
+        .product-ingredients {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 8px 0;
+        }
+
+        .ingredient-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(212, 165, 116, 0.15);
+            border: 1px solid rgba(212, 165, 116, 0.4);
+            border-radius: 20px;
+            font-size: 12px;
+            color: #8B6F47;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .ingredient-tag:hover {
+            background: rgba(212, 165, 116, 0.25);
+            transform: scale(1.05);
+        }
+
         /* ========================================
        按摩卡片樣式
        ======================================== */
@@ -2020,6 +2045,15 @@
             products.forEach((product, index) => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
+
+                // 成分標籤 HTML (圓形標籤)
+                let ingredientTags = '';
+                if (product.ingredients && product.ingredients.length > 0) {
+                    ingredientTags = product.ingredients.slice(0, 3).map(ing =>
+                        `<span class="ingredient-tag">${ing}</span>`
+                    ).join('');
+                }
+
                 card.innerHTML = `
                     <img class="product-image" 
                          src="${product.image_url || 'https://via.placeholder.com/240x180/D4A574/FFFFFF?text=Product'}" 
@@ -2028,9 +2062,8 @@
                     <div class="product-info">
                         <div class="product-brand">${product.brand || '品牌名稱'}</div>
                         <div class="product-name">${product.name}</div>
-                        <div class="product-price">NT$ ${product.price || 'N/A'}</div>
-                        <div class="product-ingredient">
-                            ${product.ingredients ? '含有: ' + product.ingredients.slice(0, 3).join('、') : ''}
+                        <div class="product-ingredients">
+                            ${ingredientTags || '<span class="ingredient-tag">成分資訊</span>'}
                         </div>
                         <div class="product-links">
                             <a href="${product.product_url || '#'}" 
@@ -2038,6 +2071,11 @@
                                class="product-link"
                                onclick="trackProductClick(${product.id || index})">
                                 前往官網 →
+                            </a>
+                            <a href="${product.momo_url || 'https://www.momoshop.com.tw/'}" 
+                               target="_blank" 
+                               class="product-link">
+                                前往 momo →
                             </a>
                         </div>
                     </div>

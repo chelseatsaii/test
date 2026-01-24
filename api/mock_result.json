@@ -106,6 +106,7 @@
         "price": 1280,
         "image_url": "https://via.placeholder.com/240x180/D4A574/FFFFFF?text=Dr.Wu",
         "product_url": "https://www.drwu.com/",
+        "momo_url": "https://www.momoshop.com.tw/search/searchShop.jsp?keyword=Dr.Wu+杏仁酸",
         "ingredients": [
           "杏仁酸",
           "煙醯胺",
@@ -119,6 +120,7 @@
         "price": 850,
         "image_url": "https://via.placeholder.com/240x180/A8C5DD/FFFFFF?text=LRP",
         "product_url": "https://www.laroche-posay.tw/",
+        "momo_url": "https://www.momoshop.com.tw/search/searchShop.jsp?keyword=理膚寶水+B5",
         "ingredients": [
           "維生素B5",
           "雪亞脂",
@@ -132,6 +134,7 @@
         "price": 1099,
         "image_url": "https://via.placeholder.com/240x180/E8B4B8/FFFFFF?text=OLAY",
         "product_url": "https://www.olay.com.tw/",
+        "momo_url": "https://www.momoshop.com.tw/search/searchShop.jsp?keyword=OLAY+光感小白瓶",
         "ingredients": [
           "煙醯胺",
           "維生素C",
@@ -145,6 +148,7 @@
         "price": 2800,
         "image_url": "https://via.placeholder.com/240x180/C9A0DC/FFFFFF?text=EL",
         "product_url": "https://www.esteelauder.com.tw/",
+        "momo_url": "https://www.momoshop.com.tw/search/searchShop.jsp?keyword=雅詩蘭黛+特潤",
         "ingredients": [
           "玻尿酸",
           "酵母精萃",
@@ -158,6 +162,7 @@
         "price": 3200,
         "image_url": "https://via.placeholder.com/240x180/B8A9C9/FFFFFF?text=Lancome",
         "product_url": "https://www.lancome.com.tw/",
+        "momo_url": "https://www.momoshop.com.tw/search/searchShop.jsp?keyword=蘭蔻+超未來",
         "ingredients": [
           "二裂酵母",
           "玻尿酸",
@@ -171,6 +176,7 @@
         "price": 199,
         "image_url": "https://via.placeholder.com/240x180/A4C2A5/FFFFFF?text=SENKA",
         "product_url": "https://www.senka.com.tw/",
+        "momo_url": "https://www.momoshop.com.tw/search/searchShop.jsp?keyword=專科+保濕化妝水",
         "ingredients": [
           "玻尿酸",
           "絲蛋白",
