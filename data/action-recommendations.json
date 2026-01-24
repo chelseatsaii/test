@@ -1,0 +1,84 @@
+{
+    "actions": {
+        "1": {
+            "id": 1,
+            "targetIssue": "面部明暗分布",
+            "actionName": "將身體與臉部轉向主要光源，讓光線自然照在臉的正前方。",
+            "description": "臉上的暗影會明顯減少，看起來比較平整、不會顯得臉頰很憔悴。",
+            "mediaType": "image",
+            "mediaUrl": "/actions/1.png"
+        },
+        "2": {
+            "id": 2,
+            "targetIssue": "面部紋理滑度",
+            "actionName": "輕鬆由下往上打臉頰，直到感覺臉頰微微溫熱即可。",
+            "description": "臉頰很快會出現自然的血色，看起來比較有精神，不會顯得臉很蒼白。",
+            "mediaType": "video",
+            "mediaUrl": "/actions/2.mp4"
+        },
+        "3": {
+            "id": 3,
+            "targetIssue": "神經肌肉張力",
+            "actionName": "慢慢做一個大大的「一」字口型，維持 10 秒，同時深呼吸放鬆下巴。",
+            "description": "下巴與臉部線條會放鬆，整個表情從緊繃變得比較自然。",
+            "mediaType": "video",
+            "mediaUrl": "/actions/3.mp4"
+        },
+        "4": {
+            "id": 4,
+            "targetIssue": "眼神聚焦感",
+            "actionName": "讓眼睛依序往上下左右移動，接著遠望窗外約 20 秒。",
+            "description": "眼睛不再那麼酸澀，視線更集中，看起來比較專注有神。",
+            "mediaType": "image",
+            "mediaUrl": "/actions/4.png"
+        },
+        "5": {
+            "id": 5,
+            "targetIssue": "組織水分感",
+            "actionName": "分幾次喝完約 200ml 的溫熱水，溫度接近體溫即可。",
+            "description": "臉部乾燥感會慢慢消失，膚況看起來比較飽滿有光澤。",
+            "mediaType": "video",
+            "mediaUrl": "/actions/5.mp4"
+        },
+        "6": {
+            "id": 6,
+            "targetIssue": "面部輪廓線",
+            "actionName": "用指腹節奏輕輕往後，順著頸皮輕按壓到後腦勺。",
+            "description": "臉部浮腫感會慢慢消失，輪廓看起來比較立體分明。",
+            "mediaType": "video",
+            "mediaUrl": "/actions/6.mp4"
+        },
+        "7": {
+            "id": 7,
+            "targetIssue": "眉位緊縮度",
+            "actionName": "用食指指腹從眉心向左右眉尾平推，重複約 10 次。",
+            "description": "眉心不再緊繃，表情看起來比較放鬆、平靜，整個人感覺比較舒緩。",
+            "mediaType": "image",
+            "mediaUrl": "/actions/7.png"
+        },
+        "8": {
+            "id": 8,
+            "targetIssue": "異質彈吸感",
+            "actionName": "跟著節奏進行 4-7-8 呼吸法，吸氣 4 秒，屏息 7 秒，吐氣 8 秒，專注呼吸即可。",
+            "description": "呼吸變得更順，整個人感覺比較清醒，臉色看起來比較紅潤有活力。",
+            "mediaType": "video",
+            "mediaUrl": "/actions/8.mp4"
+        },
+        "9": {
+            "id": 9,
+            "targetIssue": "頸前線條",
+            "actionName": "雙手交叉放在胸前，頭部緩慢向後仰，停留約 10 秒。",
+            "description": "頸部肌肉緊繃感減輕，臉部暗沉感減輕，看起來比較放鬆有精神。",
+            "mediaType": "video",
+            "mediaUrl": "/actions/9.mp4"
+        },
+        "10": {
+            "id": 10,
+            "targetIssue": "眼神透亮度",
+            "actionName": "雙手掌心輕敷雙眼，閉眼放鬆約 1 分鐘。",
+            "description": "眼睛的紅腫與疲勞感下降，眼神看起來更乾淨明亮，整個人顯得比較有活力。",
+            "mediaType": "video",
+            "mediaUrl": "/actions/10.mp4"
+        }
+    }
+}
