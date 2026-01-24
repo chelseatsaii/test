@@ -869,10 +869,6 @@
                     </div>
                 </div>
 
-                <!-- 行動推薦 (LLM 偵測結果) -->
-                <div id="action-recommendations-container">
-                    <!-- 這裡會動態載入行動推薦卡片 -->
-                </div>
 
                 <!-- 推薦按摩 -->
                 <div class="massage-card">
@@ -898,11 +894,15 @@
                 </div>
 
                 <!-- 五角雷達圖 -->
-                <div style="background:rgba(255,255,255,.80); border-radius:16px; padding:20px; margin:20px 0;">
-                    <h3>五角分析圖</h3>
-                    <canvas id="radar-chart" width="400" height="300" style="max-width:100%;"></canvas>
+                <div
+                    style="background:rgba(255,255,255,.80); border-radius:16px; padding:20px; margin:20px 0; text-align:center;">
+                    <h3 style="text-align:center;">五角分析圖</h3>
+                    <div style="display:flex; justify-content:center; margin:20px 0;">
+                        <canvas id="radar-chart" width="300" height="250" style="max-width:100%;"></canvas>
+                    </div>
                     <div style="font-size:12px; color:rgba(24,11,10,.60); margin-top:12px; text-align:center;">
-                        5 項指標: 細紋、斑、痘痘、粉刺、黑眼圈
+                        5 項指標: 細紋、斑、痘痘、粉刺、黑眼圈<br>
+                        <span style="color:#dc2626;">⚠️ 數值越大表示問題越嚴重</span>
                     </div>
                 </div>
 
@@ -910,17 +910,15 @@
                 <div class="massage-card">
                     <h3>主要問題 (最嚴重的 2 項)</h3>
                     <div id="top-issues">
-                        <div style="padding:12px; background:rgba(212,165,116,.08); border-radius:12px; margin:8px 0;">
-                            <strong>問題 1: 痘痘</strong><br>
-                            嚴重程度: <strong>8/10</strong><br>
-                            <span style="font-size:12px; color:rgba(24,11,10,.70);">T 字部位較為明顯</span>
-                        </div>
-                        <div style="padding:12px; background:rgba(212,165,116,.08); border-radius:12px; margin:8px 0;">
-                            <strong>問題 2: 細紋</strong><br>
-                            嚴重程度: <strong>7/10</strong><br>
-                            <span style="font-size:12px; color:rgba(24,11,10,.70);">眼周區域</span>
-                        </div>
+                        <!-- 動態渲染 Top 2 問題 -->
                     </div>
+
+
+                    <!-- 溫馨提醒 -->
+                    <p
+                        style="margin-top:20px; text-align:center; font-size:14px; color:rgba(24,11,10,.70); line-height:1.6;">
+                        💡 別擔心!我們為您準備了從生活到保養的完整改善建議
+                    </p>
                 </div>
             </div>
             <div class="scroll-hint">往下滑動查看飲食建議 ↓</div>
@@ -1122,14 +1120,17 @@
                 requestAnimationFrame(() => {
                     setTimeout(() => {
                         console.log('🎨 Now drawing radar chart for section B...');
-                        const result = loadResult();
-                        renderRadar(result);
+                        // TODO: 實作雷達圖繪製
+                        // const result = loadResult();
+                        // drawRadarChart(canvas, result);
                     }, 100);
                 });
             }
 
             // GA 追蹤
-            trackSection(sections[targetIndex].dataset.section);
+            if (sections[targetIndex] && sections[targetIndex].dataset.section) {
+                trackSection(sections[targetIndex].dataset.section);
+            }
         }
 
         function backToOverview() {
@@ -1525,30 +1526,9 @@
             console.log('✅ Overview summary updated');
         }
 
-        // 從 localStorage 載入結果
-        function loadResult() {
-            const keys = ["result", "ai_result", "analysis_result", "payload"];
-            for (const k of keys) {
-                const raw = localStorage.getItem(k);
-                if (!raw) continue;
-                try {
-                    return JSON.parse(raw);
-                } catch (e) {
-                    console.error('Parse error:', e);
-                }
-            }
-            // 如果沒有資料,返回測試數據
-            return {
-                overall: 78,
-                metrics: {
-                    glow: 72,
-                    complexion: 80,
-                    blemish: 64,
-                    oilBalance: 70,
-                    evenness: 75
-                }
-            };
-        }
+
+        // loadResult 已從 utils.js import,不需要重複定義
+
 
         // ========================================
         // A 區：渲染 AI 診斷與按摩推薦
@@ -1571,109 +1551,515 @@
         }
 
         /**
-         * 渲染按摩推薦
+         * 渲染按摩推薦 (實際上是顯示 LLM 偵測到的行動建議)
          */
-        function renderMassageRecommendations(massages) {
+        async function renderMassageRecommendations(detectedIssues) {
             const massageList = document.getElementById('massage-list');
             if (!massageList) return;
 
-            // 如果沒有資料，使用假資料
-            if (!massages || massages.length === 0) {
-                massages = [
+            // 如果沒有偵測結果,使用假資料
+            if (!detectedIssues || detectedIssues.length === 0) {
+                detectedIssues = [1, 2]; // 預設顯示問題 1 和 2
+            }
+
+            try {
+                // 載入 action-recommendations.json
+                const response = await fetch('./data/action-recommendations.json');
+                const data = await response.json();
+
+                // 根據偵測到的問題生成卡片
+                const cards = detectedIssues.map(issueId => {
+                    const action = data.actions[issueId];
+                    if (!action) return '';
+
+                    // 判斷媒體類型
+                    const mediaElement = action.mediaType === 'video'
+                        ? `<video class="massage-gif-img" autoplay loop muted playsinline>
+                             <source src="${action.mediaUrl}" type="video/mp4">
+                             您的瀏覽器不支援影片播放。
+                           </video>`
+                        : `<img src="${action.mediaUrl}" 
+                               alt="${action.targetIssue}" 
+                               class="massage-gif-img">`;
+
+                    return `
+                        <div class="massage-item">
+                            <div class="massage-gif-container">
+                                ${mediaElement}
+                            </div>
+                            <div class="massage-info">
+                                <div class="massage-name">${action.targetIssue}</div>
+                                <div class="massage-duration">⏱️ 2 分鐘</div>
+                                <div class="massage-steps">
+                                    <strong>動作說明：</strong>
+                                    <p>${action.actionName}</p>
+                                </div>
+                                <div class="massage-benefits">
+                                    <strong>效果：</strong>
+                                    <p>${action.description}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                massageList.innerHTML = cards;
+                console.log('✅ 推薦按摩已渲染,顯示問題:', detectedIssues);
+            } catch (error) {
+                console.error('❌ 載入行動建議失敗:', error);
+                // 顯示錯誤訊息
+                massageList.innerHTML = '<div style="padding:20px;text-align:center;color:#999;">載入失敗,請重新整理頁面</div>';
+            }
+        }
+
+        /**
+         * 渲染 B 區 Top 2 問題
+         */
+        function renderTopIssues(topIssues) {
+            const container = document.getElementById('top-issues');
+            if (!container) return;
+
+            // 如果沒有資料,使用假資料
+            if (!topIssues || topIssues.length === 0) {
+                topIssues = [
                     {
-                        name: "眼周舒緩按摩",
-                        gif_url: "https://via.placeholder.com/300x200/EDF2F7/718096?text=眼周按摩",
-                        duration: "2 分鐘",
-                        steps: "1. 用指腹輕按太陽穴 3 秒\n2. 沿眼眶由內向外畫圈 5 次\n3. 輕壓眼頭穴位 3 秒",
-                        benefits: "促進眼周血液循環，減緩疲勞感，提升眼部明亮度"
+                        name: "黑眼圈",
+                        score: 7.8,
+                        llm_analysis: "眼周區域循環不佳,建議加強保濕與按摩促進循環。"
                     },
                     {
-                        name: "臉部提拉按摩",
-                        gif_url: "https://via.placeholder.com/300x200/EDF2F7/718096?text=臉部提拉",
-                        duration: "3 分鐘",
-                        steps: "1. 從下巴往耳際提拉 10 次\n2. 額頭由內向外推 10 次\n3. 鼻翼兩側輕按 5 次",
-                        benefits: "提升臉部輪廓，促進淋巴排毒，改善整體氣色"
+                        name: "斑",
+                        score: 6.9,
+                        llm_analysis: "臉頰區域色素沉澱,建議使用美白產品並做好防曬。"
                     }
                 ];
             }
 
-            massageList.innerHTML = massages.map(massage => `
-                <div class="massage-item">
-                    <div class="massage-gif-container">
-                        <img src="${massage.gif_url}" 
-                             alt="${massage.name}" 
-                             class="massage-gif-img"
-                             onerror="this.parentElement.innerHTML='<div style=\\'padding:20px;text-align:center;color:var(--muted)\\'>GIF 載入中...</div>'">
+            // 根據分數判斷嚴重度
+            const getSeverityInfo = (score) => {
+                if (score >= 8) return { label: '極高', color: '#dc2626', emoji: '🔴' };
+                if (score >= 6) return { label: '高', color: '#f59e0b', emoji: '🟠' };
+                if (score >= 4) return { label: '中', color: '#fbbf24', emoji: '🟡' };
+                return { label: '低', color: '#10b981', emoji: '🟢' };
+            };
+
+            // 生成 HTML
+            const html = topIssues.map((issue, index) => {
+                const severity = getSeverityInfo(issue.score);
+                return `
+                    <div style="padding:12px; background:rgba(212,165,116,.08); border-radius:12px; margin:8px 0; border-left:4px solid ${severity.color};">
+                        <strong>問題 ${index + 1}: ${issue.name}</strong><br>
+                        嚴重度: <strong style="color:${severity.color};">${severity.emoji} ${severity.label} (${issue.score}/10)</strong><br>
+                        <span style="font-size:12px; color:rgba(24,11,10,.70);">${issue.llm_analysis}</span>
                     </div>
-                    <div class="massage-info">
-                        <div class="massage-name">${massage.name}</div>
-                        <div class="massage-duration">⏱️ ${massage.duration}</div>
-                        <div class="massage-steps">
-                            <strong>動作說明：</strong>
-                            <p>${massage.steps}</p>
-                        </div>
-                        <div class="massage-benefits">
-                            <strong>效果：</strong>
-                            <p>${massage.benefits}</p>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+            console.log('✅ Top 2 問題已渲染');
         }
 
-        /**
-         * 載入 A 區資料
-         */
-        function loadSectionAData() {
-            const result = loadResult();
+
+        function loadSectionAData(result) {
+            console.log('🚀 loadSectionAData 開始執行...');
+
+            // 如果沒有傳入 result,嘗試從 localStorage 讀取
+            if (!result) {
+                const keys = ["result", "skinapp_result", "ai_result", "analysis_result"];
+                for (const k of keys) {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        try {
+                            result = JSON.parse(raw);
+                            console.log(`✅ 從 localStorage.${k} 讀取到資料`);
+                            break;
+                        } catch (e) {
+                            console.error('Parse error:', e);
+                        }
+                    }
+                }
+            }
 
             // 渲染 AI 診斷（如果有資料）
             if (result && result.ai_diagnosis) {
                 renderAIDiagnosis(result.ai_diagnosis);
             }
 
-            // 渲染按摩推薦（如果有資料，否則使用假資料）
-            if (result && result.massage_recommendations) {
-                renderMassageRecommendations(result.massage_recommendations);
+            // 取得 LLM 偵測結果 (通常是 2 個問題)
+            const detectedIssues = result?.llm_detection?.detectedIssues || [1, 2];
+
+            // 渲染推薦按摩,傳入偵測到的問題 ID
+            renderMassageRecommendations(detectedIssues);
+        }
+
+        /**
+         * 載入 B 區資料
+         */
+        function loadSectionBData(result) {
+            console.log('🚀 loadSectionBData 開始執行...');
+
+            // 如果沒有傳入 result,嘗試從 localStorage 讀取
+            if (!result) {
+                const keys = ["result", "skinapp_result", "ai_result"];
+                for (const k of keys) {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        try {
+                            result = JSON.parse(raw);
+                            console.log(`✅ 從 localStorage.${k} 讀取到資料`);
+                            break;
+                        } catch (e) {
+                            console.error('Parse error:', e);
+                        }
+                    }
+                }
+            }
+
+            if (!result) {
+                console.warn('⚠️ localStorage 中沒有資料,使用假資料');
+                // 使用假資料
+                result = {
+                    b_scores: {
+                        darkCircles: 7.8,
+                        acne: 6.1,
+                        comedones: 5.4,
+                        wrinkles: 4.2,
+                        spots: 6.9
+                    },
+                    b_top_issues: [
+                        {
+                            name: "黑眼圈",
+                            score: 7.8,
+                            llm_analysis: "眼周區域循環不佳,建議加強保濕與按摩促進循環。"
+                        },
+                        {
+                            name: "斑",
+                            score: 6.9,
+                            llm_analysis: "臉頰區域色素沉澱,建議使用美白產品並做好防曬。"
+                        }
+                    ]
+                };
+            }
+
+            // 繪製雷達圖
+            const radarCanvas = document.getElementById('radar-chart');
+            console.log('📊 雷達圖 canvas:', radarCanvas);
+
+            if (radarCanvas) {
+                console.log('🎨 準備繪製雷達圖...');
+                drawRadarChart(radarCanvas, result);
             } else {
-                renderMassageRecommendations(); // 使用假資料
+                console.error('❌ 找不到 radar-chart canvas 元素!');
+            }
+
+            // 繪製總覽頁的小雷達圖
+            const radarOverviewCanvas = document.getElementById('radar-chart-overview');
+            if (radarOverviewCanvas) {
+                console.log('🎨 準備繪製總覽頁雷達圖...');
+                drawRadarChart(radarOverviewCanvas, result);
+            }
+
+            // 渲染 Top 2 問題
+            console.log('📋 準備渲染 Top 2 問題...');
+            if (result && result.b_top_issues) {
+                renderTopIssues(result.b_top_issues);
+            } else {
+                renderTopIssues(); // 使用假資料
+            }
+
+            console.log('✅ loadSectionBData 執行完成');
+        }
+
+        /**
+         * 載入 C 區資料 (生活建議)
+         */
+        function loadSectionCData(result) {
+            console.log('🚀 loadSectionCData 開始執行...');
+
+            // 如果沒有傳入 result,嘗試從 localStorage 讀取
+            if (!result) {
+                const keys = ["result", "skinapp_result", "ai_result"];
+                for (const k of keys) {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        try {
+                            result = JSON.parse(raw);
+                            console.log(`✅ 從 localStorage.${k} 讀取到資料`);
+                            break;
+                        } catch (e) {
+                            console.error('Parse error:', e);
+                        }
+                    }
+                }
+            }
+
+            // 取得生活建議資料
+            const lifestyleAdvice = result?.lifestyle_advice;
+
+            if (!lifestyleAdvice) {
+                console.warn('⚠️ 沒有 lifestyle_advice 資料,使用假資料');
+                return; // 使用 HTML 中的假資料
+            }
+
+            // 渲染營養補充建議
+            if (lifestyleAdvice.nutrition && lifestyleAdvice.nutrition.items) {
+                const nutritionList = document.getElementById('nutrition-list');
+                if (nutritionList) {
+                    nutritionList.innerHTML = lifestyleAdvice.nutrition.items
+                        .map(item => `<li>${item}</li>`)
+                        .join('');
+                    console.log('✅ 營養補充建議已渲染');
+                }
+            }
+
+            // 渲染作息調整建議
+            if (lifestyleAdvice.sleep && lifestyleAdvice.sleep.detail) {
+                const sleepDetail = document.getElementById('sleep-detail');
+                if (sleepDetail) {
+                    sleepDetail.textContent = lifestyleAdvice.sleep.detail;
+                    console.log('✅ 作息調整建議已渲染');
+                }
+            }
+
+            // 渲染生活習慣改善
+            if (lifestyleAdvice.exercise && lifestyleAdvice.exercise.detail) {
+                const exerciseDetail = document.getElementById('exercise-detail');
+                if (exerciseDetail) {
+                    exerciseDetail.textContent = lifestyleAdvice.exercise.detail;
+                    console.log('✅ 生活習慣改善已渲染');
+                }
+            }
+
+            console.log('✅ loadSectionCData 執行完成');
+        }
+
+        /**
+         * 載入 D 區資料 (產品推薦)
+         */
+        function loadSectionDData(result) {
+            console.log('🚀 loadSectionDData 開始執行...');
+
+            // 取得產品推薦資料
+            const productRec = result?.d_product_recommendations;
+
+            if (!productRec) {
+                console.warn('⚠️ 沒有產品推薦資料,使用假資料');
+                return; // 使用 HTML 中的假資料
+            }
+
+            // 渲染成分說明
+            if (productRec.ingredients && productRec.ingredients.length > 0) {
+                renderIngredients(productRec.ingredients);
+            }
+
+            // 渲染產品卡片
+            if (productRec.products && productRec.products.length > 0) {
+                renderProducts(productRec.products);
+            }
+
+            console.log('✅ loadSectionDData 執行完成');
+        }
+
+        /**
+         * 渲染成分說明
+         */
+        function renderIngredients(ingredients) {
+            console.log('📝 開始渲染成分說明...', ingredients);
+
+            // 找到 D 區詳情頁的第一個位置 (成分說明區)
+            const detailSection = document.querySelector('[data-section="product_recommendation"] .detail-content');
+            if (!detailSection) {
+                console.error('❌ 找不到 D 區詳情容器');
+                return;
+            }
+
+            // 移除舊的成分卡片 (保留標題和產品列表)
+            const oldCards = detailSection.querySelectorAll('.massage-card');
+            oldCards.forEach((card, index) => {
+                // 只移除前面的成分卡片,保留最後一個產品列表卡片
+                if (index < oldCards.length - 1) {
+                    card.remove();
+                }
+            });
+
+            // 在標題後面插入新的成分卡片
+            const h2 = detailSection.querySelector('h2');
+            ingredients.forEach(ing => {
+                const card = document.createElement('div');
+                card.className = 'massage-card';
+                card.innerHTML = `
+                    <h3>針對${ing.issue_name}問題</h3>
+                    <p><strong>主攻手:</strong> ${ing.primary_ingredient}</p>
+                    <p><strong>核心成分:</strong> ${ing.core_ingredients.join('、')}</p>
+                    <p style="font-size:13px; color:rgba(24,11,10,.70);">
+                        ${ing.description}
+                    </p>
+                `;
+                h2.insertAdjacentElement('afterend', card);
+            });
+
+            console.log('✅ 成分說明已渲染');
+        }
+
+        /**
+         * 渲染產品卡片
+         */
+        function renderProducts(products) {
+            console.log('📝 開始渲染產品卡片...', products);
+
+            const container = document.getElementById('product-list');
+            if (!container) {
+                console.error('❌ 找不到產品列表容器');
+                return;
+            }
+
+            // 清空舊的產品卡片
+            container.innerHTML = '';
+
+            // 渲染新的產品卡片
+            products.forEach((product, index) => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img class="product-image" 
+                         src="${product.image_url || 'https://via.placeholder.com/240x180/D4A574/FFFFFF?text=Product'}" 
+                         alt="${product.name}"
+                         onerror="this.src='https://via.placeholder.com/240x180/D4A574/FFFFFF?text=No+Image'">
+                    <div class="product-info">
+                        <div class="product-brand">${product.brand || '品牌名稱'}</div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">NT$ ${product.price || 'N/A'}</div>
+                        <div class="product-ingredient">
+                            ${product.ingredients ? '含有: ' + product.ingredients.slice(0, 3).join('、') : ''}
+                        </div>
+                        <div class="product-links">
+                            <a href="${product.product_url || '#'}" 
+                               target="_blank" 
+                               class="product-link"
+                               onclick="trackProductClick(${product.id || index})">
+                                前往官網 →
+                            </a>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            console.log(`✅ 已渲染 ${products.length} 個產品卡片`);
+        }
+
+        /**
+         * 追蹤產品點擊 (GA4)
+         */
+        function trackProductClick(productId) {
+            console.log('📊 追蹤產品點擊:', productId);
+            // TODO: 實作 GA4 追蹤
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'product_click', {
+                    'product_id': productId,
+                    'session_id': localStorage.getItem('session_id')
+                });
             }
         }
 
+
+        /**
+         * 從 API 或 localStorage 載入結果
+         */
+        async function loadResultData() {
+            console.log('🚀 開始載入結果資料...');
+
+            try {
+                // 1. 檢查是否有 session_id
+                const sessionId = localStorage.getItem('session_id');
+
+                if (!sessionId) {
+                    console.warn('⚠️ 找不到 session_id,嘗試從 localStorage 讀取');
+                    return loadFromLocalStorage();
+                }
+
+                // 2. 從 API 取得結果
+                console.log('📡 從 API 取得結果...', sessionId);
+
+                // TODO: 正式環境時,改為實際的 API URL
+                // const apiUrl = `https://your-api.run.app/api/result?session_id=${sessionId}`;
+                const apiUrl = './api/mock_result.json'; // 開發環境使用 mock 資料
+
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`API 回應錯誤: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('✅ API 資料載入成功', result);
+
+                return result;
+
+            } catch (error) {
+                console.error('❌ 從 API 載入失敗:', error);
+                console.log('🔄 降級使用 localStorage 或 mock 資料');
+                return loadFromLocalStorage();
+            }
+        }
+
+        /**
+         * 從 localStorage 讀取資料 (降級方案)
+         */
+        function loadFromLocalStorage() {
+            console.log('📦 從 localStorage 讀取資料...');
+
+            const keys = ["result", "skinapp_result", "ai_result", "analysis_result"];
+            for (const k of keys) {
+                const raw = localStorage.getItem(k);
+                if (raw) {
+                    try {
+                        const result = JSON.parse(raw);
+                        console.log(`✅ 從 localStorage.${k} 讀取成功`);
+                        return result;
+                    } catch (e) {
+                        console.error(`❌ 解析 localStorage.${k} 失敗:`, e);
+                    }
+                }
+            }
+
+            console.warn('⚠️ localStorage 中沒有資料,將使用 HTML 中的假資料');
+            return null;
+        }
+
+        /**
+         * 載入所有區塊資料
+         */
+        function loadAllSections(result) {
+            if (!result) {
+                console.warn('⚠️ 沒有資料,使用 HTML 中的假資料');
+                return;
+            }
+
+            console.log('🎨 開始渲染所有區塊...');
+            loadSectionAData(result);
+            loadSectionBData(result);
+            loadSectionCData(result);
+            loadSectionDData(result);
+            console.log('✅ 所有區塊渲染完成');
+        }
+
         // 頁面載入時執行
-        window.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            loadSectionAData(); // 載入 A 區資料
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('📄 頁面載入完成,開始初始化...');
+
+            // 載入結果資料
+            const result = await loadResultData();
+
+            // 渲染所有區塊
+            loadAllSections(result);
         });
 
         window.showDetail = showDetail;
         window.backToOverview = backToOverview;
         window.saveToLine = saveToLine;
     </script>
-    <!-- 行動推薦系統 -->
-    <script src="./js/action-recommendations.js"></script>
-    <script>
-        async function initActionRecommendations() {
-            try {
-                await actionRecommendationManager.init();
-                const result = loadResult ? loadResult() : null;
-                const llmDetection = result?.llm_detection || {
-                    summary: "您的肌膚整體狀況良好，但在以下幾個方面有改善空間。",
-                    detectedIssues: [1, 4, 5, 10]
-                };
-                if (llmDetection.detectedIssues && llmDetection.detectedIssues.length > 0) {
-                    actionRecommendationManager.displayRecommendations(
-                        llmDetection.detectedIssues,
-                        '#action-recommendations-container',
-                        llmDetection.summary
-                    );
-                }
-            } catch (error) {
-                console.error('❌ 錯誤:', error);
-            }
-        }
-        window.addEventListener('DOMContentLoaded', initActionRecommendations);
-    </script>
+
 </body>
 
 </html>

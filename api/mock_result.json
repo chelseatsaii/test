@@ -37,6 +37,20 @@
     "wrinkles": 4.2,
     "spots": 6.9
   },
+  "b_top_issues": [
+    {
+      "name": "黑眼圈",
+      "key": "darkCircles",
+      "score": 7.8,
+      "llm_analysis": "眼周區域循環不佳,靜脈瘀血較為明顯。建議加強眼周保濕與按摩,促進血液循環,減少暗沉感。"
+    },
+    {
+      "name": "斑",
+      "key": "spots",
+      "score": 6.9,
+      "llm_analysis": "臉頰區域色素沉澱,可能與日曬或荷爾蒙變化有關。建議使用美白產品,並做好防曬措施。"
+    }
+  ],
   "lifestyle_advice": {
     "nutrition": {
       "summary": "增加蔬果、減少油炸",
@@ -62,6 +76,109 @@
     "Add protein at breakfast and reduce late-night sugar spikes.",
     "Keep sun protection stable to avoid redness and unevenness swings."
   ],
+  "d_product_recommendations": {
+    "ingredients": [
+      {
+        "issue_name": "黑眼圈",
+        "primary_ingredient": "咖啡因",
+        "core_ingredients": [
+          "維生素K",
+          "煙醯胺"
+        ],
+        "description": "咖啡因能促進眼周血液循環,減少靜脈瘀血,有效改善黑眼圈問題。維生素K可強化微血管,煙醯胺則能提亮膚色。"
+      },
+      {
+        "issue_name": "斑",
+        "primary_ingredient": "維生素C",
+        "core_ingredients": [
+          "熊果素",
+          "煙醯胺",
+          "傳明酸"
+        ],
+        "description": "維生素C能抑制黑色素生成,淡化色斑。熊果素和傳明酸協同作用,加強美白效果,煙醯胺則能改善膚色不均。"
+      }
+    ],
+    "products": [
+      {
+        "id": 1,
+        "name": "Dr.Wu 杏仁酸亮白煥膚精華",
+        "brand": "Dr.Wu",
+        "price": 1280,
+        "image_url": "https://via.placeholder.com/240x180/D4A574/FFFFFF?text=Dr.Wu",
+        "product_url": "https://www.drwu.com/",
+        "ingredients": [
+          "杏仁酸",
+          "煙醯胺",
+          "維生素C"
+        ]
+      },
+      {
+        "id": 2,
+        "name": "理膚寶水 B5全面修復霜",
+        "brand": "La Roche-Posay",
+        "price": 850,
+        "image_url": "https://via.placeholder.com/240x180/A8C5DD/FFFFFF?text=LRP",
+        "product_url": "https://www.laroche-posay.tw/",
+        "ingredients": [
+          "維生素B5",
+          "雪亞脂",
+          "維生素E"
+        ]
+      },
+      {
+        "id": 3,
+        "name": "OLAY 光感小白瓶",
+        "brand": "OLAY",
+        "price": 1099,
+        "image_url": "https://via.placeholder.com/240x180/E8B4B8/FFFFFF?text=OLAY",
+        "product_url": "https://www.olay.com.tw/",
+        "ingredients": [
+          "煙醯胺",
+          "維生素C",
+          "維生素E"
+        ]
+      },
+      {
+        "id": 4,
+        "name": "雅詩蘭黛 特潤超導修護露",
+        "brand": "Estée Lauder",
+        "price": 2800,
+        "image_url": "https://via.placeholder.com/240x180/C9A0DC/FFFFFF?text=EL",
+        "product_url": "https://www.esteelauder.com.tw/",
+        "ingredients": [
+          "玻尿酸",
+          "酵母精萃",
+          "維生素E"
+        ]
+      },
+      {
+        "id": 5,
+        "name": "蘭蔻 超未來肌因賦活露",
+        "brand": "Lancôme",
+        "price": 3200,
+        "image_url": "https://via.placeholder.com/240x180/B8A9C9/FFFFFF?text=Lancome",
+        "product_url": "https://www.lancome.com.tw/",
+        "ingredients": [
+          "二裂酵母",
+          "玻尿酸",
+          "維生素C"
+        ]
+      },
+      {
+        "id": 6,
+        "name": "專科 完美保濕化妝水",
+        "brand": "SENKA",
+        "price": 199,
+        "image_url": "https://via.placeholder.com/240x180/A4C2A5/FFFFFF?text=SENKA",
+        "product_url": "https://www.senka.com.tw/",
+        "ingredients": [
+          "玻尿酸",
+          "絲蛋白",
+          "甘油"
+        ]
+      }
+    ]
+  },
   "products": [
     {
       "name": "Calm Balance Serum",
