@@ -19,7 +19,7 @@
 ### 1. 核心 HTML 文件
 - ✅ `result_new.html` (1649 行) - 結果頁面主文件
 - ✅ `analyze.html` (1048 行) - 拍照分析頁面
-- ✅ `survery_new.html` (509 行) - 問卷頁面
+- ✅ `survey_new.html` (509 行) - 問卷頁面
 
 ### 2. API 資料文件
 - ✅ `api/mock_result.json` (88 行) - 測試資料
@@ -37,7 +37,7 @@
 
 #### 1. **資料來源與載入**
 ```
-survery_new.html (問卷) 
+survey_new.html (問卷) 
     ↓ localStorage.setItem("survey", ...)
     ↓ 跳轉到 result_new.html
     ↓
@@ -178,7 +178,7 @@ window.addEventListener('DOMContentLoaded')
 ```
 index.html (首頁)
     ↓
-survery_new.html (問卷)
+survey_new.html (問卷)
     ↓ 完成問卷後
     ↓ localStorage.setItem("survey", ...)
     ↓ location.href = "result_new.html"
@@ -205,7 +205,7 @@ result_new.html (結果頁)
 
 **檢查結果**: ✅ 功能完整，無衝突
 
-#### 2. **survery_new.html - 問卷功能**
+#### 2. **survey_new.html - 問卷功能**
 - ✅ 問卷說明頁 (introPage)
 - ✅ 9 題問卷內容
 - ✅ 進度條顯示
