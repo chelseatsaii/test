@@ -14,7 +14,7 @@ class ActionRecommendationManager {
    */
   async init() {
     try {
-      const response = await fetch('/cji102_project/data/action-recommendations.json');
+      const response = await fetch('./data/action-recommendations.json');
       if (!response.ok) {
         throw new Error('Failed to load action recommendations data');
       }
