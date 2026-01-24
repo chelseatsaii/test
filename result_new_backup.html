@@ -1650,30 +1650,6 @@
         window.backToOverview = backToOverview;
         window.saveToLine = saveToLine;
     </script>
-    <!-- 行動推薦系統 -->
-    <script src="/js/action-recommendations.js"></script>
-    <script>
-        async function initActionRecommendations() {
-            try {
-                await actionRecommendationManager.init();
-                const result = loadResult ? loadResult() : null;
-                const llmDetection = result?.llm_detection || {
-                    summary: "您的肌膚整體狀況良好，但在以下幾個方面有改善空間。",
-                    detectedIssues: [1, 4, 5, 10]
-                };
-                if (llmDetection.detectedIssues && llmDetection.detectedIssues.length > 0) {
-                    actionRecommendationManager.displayRecommendations(
-                        llmDetection.detectedIssues,
-                        '#action-recommendations-container',
-                        llmDetection.summary
-                    );
-                }
-            } catch (error) {
-                console.error('❌ 錯誤:', error);
-            }
-        }
-        window.addEventListener('DOMContentLoaded', initActionRecommendations);
-    </script>
 </body>
 
 </html>

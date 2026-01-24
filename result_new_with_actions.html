@@ -1,0 +1,48 @@
+window.showDetail = showDetail;
+window.backToOverview = backToOverview;
+window.saveToLine = saveToLine;
+</script>
+
+<!-- 行動推薦系統 -->
+<script src="/js/action-recommendations.js"></script>
+<script>
+    /**
+     * 初始化行動推薦系統
+     */
+    async function initActionRecommendations() {
+        try {
+            // 初始化管理器
+            await actionRecommendationManager.init();
+            console.log('✅ 行動推薦系統已初始化');
+
+            // 從 localStorage 或 API 取得 LLM 偵測結果
+            const result = loadResult ? loadResult() : null;
+
+            // 模擬 LLM 偵測結果（實際應從後端 API 取得）
+            const llmDetection = result?.llm_detection || {
+                summary: "您的肌膚整體狀況良好，但在以下幾個方面有改善空間。透過簡單的動作調整，可以快速提升氣色表現。",
+                detectedIssues: [1, 4, 5, 10]  // 偵測到的問題 ID
+            };
+
+            // 顯示行動推薦
+            if (llmDetection.detectedIssues && llmDetection.detectedIssues.length > 0) {
+                actionRecommendationManager.displayRecommendations(
+                    llmDetection.detectedIssues,
+                    '#action-recommendations-container',
+                    llmDetection.summary
+                );
+                console.log('✅ 行動推薦已顯示');
+            }
+        } catch (error) {
+            console.error('❌ 行動推薦系統初始化失敗:', error);
+        }
+    }
+
+    // 在頁面載入時初始化行動推薦系統
+    window.addEventListener('DOMContentLoaded', () => {
+        initActionRecommendations();
+    });
+</script>
+</body>
+
+</html>
