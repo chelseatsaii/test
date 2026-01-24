@@ -568,6 +568,47 @@
             color: var(--text);
         }
 
+        .advice-text {
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        /* D 區成分徽章樣式 */
+        .ingredients-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .ingredient-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.12), rgba(212, 165, 116, 0.06));
+            border: 1px solid rgba(212, 165, 116, 0.3);
+            transition: all 0.2s;
+        }
+
+        .ingredient-badge:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(212, 165, 116, 0.2);
+        }
+
+        .ingredient-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .ingredient-text {
+            flex: 1;
+            color: var(--text);
+            font-weight: 500;
+        }
+
         /* ========================================
        按摩卡片樣式
        ======================================== */
@@ -819,9 +860,20 @@
                         <!-- D區 - 智慧配方 -->
                         <div class="section-card" onclick="showDetail('section-d')">
                             <div class="section-title">D. 智慧配方</div>
-                            <div class="section-preview">
-                                <strong>6 款</strong> 精選產品推薦
+
+                            <!-- 推薦成分徽章 (動態渲染) -->
+                            <div class="ingredients-badges" id="ingredients-badges-overview">
+                                <!-- 預設顯示,會被 JavaScript 替換 -->
+                                <div class="ingredient-badge">
+                                    <span class="ingredient-icon">💊</span>
+                                    <span class="ingredient-text">針對黑眼圈：咖啡因</span>
+                                </div>
+                                <div class="ingredient-badge">
+                                    <span class="ingredient-icon">✨</span>
+                                    <span class="ingredient-text">針對斑：維生素C</span>
+                                </div>
                             </div>
+
                             <div class="section-badge">點擊查看詳情 →</div>
                         </div>
                     </div>
@@ -1847,7 +1899,12 @@
                 return; // 使用 HTML 中的假資料
             }
 
-            // 渲染成分說明
+            // 渲染總覽頁的成分摘要
+            if (productRec.ingredients && productRec.ingredients.length > 0) {
+                renderIngredientsOverview(productRec.ingredients);
+            }
+
+            // 渲染詳情頁的成分說明
             if (productRec.ingredients && productRec.ingredients.length > 0) {
                 renderIngredients(productRec.ingredients);
             }
@@ -1858,6 +1915,49 @@
             }
 
             console.log('✅ loadSectionDData 執行完成');
+        }
+
+        /**
+         * 渲染總覽頁的成分摘要
+         */
+        function renderIngredientsOverview(ingredients) {
+            console.log('📝 開始渲染總覽頁成分摘要...', ingredients);
+
+            const container = document.getElementById('ingredients-badges-overview');
+            if (!container) {
+                console.error('❌ 找不到總覽頁成分容器');
+                return;
+            }
+
+            // 清空舊的內容
+            container.innerHTML = '';
+
+            // 成分圖示對應
+            const iconMap = {
+                '咖啡因': '☕',
+                '維生素C': '🍊',
+                '維生素K': '💊',
+                '煙醯胺': '✨',
+                '熊果素': '🌿',
+                '傳明酸': '💎',
+                '玻尿酸': '💧',
+                '視黃醇': '🌟',
+                '水楊酸': '🧪'
+            };
+
+            // 渲染每個成分
+            ingredients.forEach(ing => {
+                const icon = iconMap[ing.primary_ingredient] || '💊';
+                const badge = document.createElement('div');
+                badge.className = 'ingredient-badge';
+                badge.innerHTML = `
+                    <span class="ingredient-icon">${icon}</span>
+                    <span class="ingredient-text">針對${ing.issue_name}：${ing.primary_ingredient}</span>
+                `;
+                container.appendChild(badge);
+            });
+
+            console.log(`✅ 總覽頁成分摘要已渲染 (${ingredients.length} 個)`);
         }
 
         /**
