@@ -74,7 +74,7 @@ function loadUserPhoto(result) {
 function renderMassageRecommendations(issueIds) {
     console.log('📝 開始渲染按摩推薦:', issueIds);
 
-    const container = document.getElementById('massage-recommendations');
+    const container = document.getElementById('massage-list');
     if (!container) {
         console.error('❌ 找不到按摩推薦容器');
         return;

@@ -31,19 +31,22 @@ export function loadSectionB(result) {
     // 載入 AI 遮罩圖
     loadMaskPhoto(result);
 
-    const skinScores = result?.b_skin_analysis?.scores || result?.skin_scores;
-    const topIssues = result?.b_skin_analysis?.top_issues || result?.top_issues;
+    // 支援多種資料格式
+    const skinScores = result?.b_skin_analysis?.scores
+        || result?.skin_scores
+        || result?.b_scores;
 
-    if (!skinScores) {
-        console.warn('⚠️ 沒有膚況分數資料');
-        return;
+    const topIssues = result?.b_skin_analysis?.top_issues
+        || result?.top_issues
+        || result?.b_top_issues;
+
+    // 繪製雷達圖 (如果有分數資料)
+    if (skinScores) {
+        drawRadarChart('skin-radar-detail', skinScores, 300);
+        drawRadarChart('skin-radar-overview', skinScores, 150);
+    } else {
+        console.warn('⚠️ 沒有膚況分數資料,雷達圖將使用 HTML 預設');
     }
-
-    // 繪製詳情頁雷達圖
-    drawRadarChart('skin-radar-detail', skinScores, 300);
-
-    // 繪製總覽頁小雷達圖
-    drawRadarChart('skin-radar-overview', skinScores, 150);
 
     // 渲染 Top 2 問題
     if (topIssues?.length > 0) {
