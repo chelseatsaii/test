@@ -304,15 +304,7 @@
 <body>
     <div class="bg-glass"></div>
 
-    <header>
-        <div class="brand">
-            <div class="logo"></div>
-            <div>
-                <h1>問卷</h1>
-                <p>快速問卷 · 30秒完成</p>
-            </div>
-        </div>
-    </header>
+    <!-- Header 已移除,保持頁面簡潔 -->
 
     <!-- Loading Overlay -->
     <div id="loading-overlay">
@@ -622,60 +614,30 @@
                         showLoading();
 
                         // 6. 準備 API 請求資料
-                        const requestData = {
-                            photo: photo,
-                            line_user_id: userId,
-                            answers: Object.values(answers) // 轉換為陣列
-                        };
-
                         console.log('📤 準備提交分析...', {
                             userId,
                             answersCount: Object.keys(answers).length
                         });
 
-                        // 7. 呼叫 n8n API (開發模式跳過,直接使用 mock 資料)
-                        const DEV_MODE = true; // TODO: 正式環境改為 false
+                        // 7. 使用 utils.js 的 submitAnalysis 函數
+                        //    動態 import (支援 ES Module)
+                        const { submitAnalysis, getLineUserId } = await import('./js/utils.js');
 
-                        if (DEV_MODE) {
-                            // 開發模式:模擬 API 延遲,然後使用 mock 資料
-                            console.log('🔧 開發模式:使用 mock 資料');
-                            await new Promise(resolve => setTimeout(resolve, 2000)); // 模擬 2 秒延遲
+                        // 取得 LINE User ID (如果有 LIFF)
+                        const lineUserId = getLineUserId() || userId;
 
-                            // 產生假的 session_id
-                            const sessionId = 'mock-session-' + Date.now();
-                            localStorage.setItem('session_id', sessionId);
+                        // 呼叫提交 API
+                        const result = await submitAnalysis({
+                            photoBase64: photo,
+                            answers: answers,
+                            lineUserId: lineUserId
+                        });
 
-                            // 載入 mock 資料到 localStorage
-                            const mockResponse = await fetch('./api/mock_result.json');
-                            const mockData = await mockResponse.json();
-                            localStorage.setItem('result', JSON.stringify(mockData));
-
-                            console.log('✅ Mock 資料已載入', sessionId);
-                        } else {
-                            // 正式環境:呼叫實際的 n8n API
-                            const response = await fetch('https://your-n8n.run.app/webhook/analyze', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(requestData),
-                                timeout: 30000 // 30 秒超時
-                            });
-
-                            if (!response.ok) {
-                                throw new Error(`API 回應錯誤: ${response.status}`);
-                            }
-
-                            const result = await response.json();
-
-                            if (!result.session_id) {
-                                throw new Error('API 回應缺少 session_id');
-                            }
-
-                            // 儲存 session_id
-                            localStorage.setItem('session_id', result.session_id);
-                            console.log('✅ 分析完成', result.session_id);
+                        if (!result.success) {
+                            throw new Error(result.message || '提交失敗');
                         }
+
+                        console.log('✅ 分析提交成功', result.session_id);
 
                         // 8. 隱藏 Loading
                         hideLoading();

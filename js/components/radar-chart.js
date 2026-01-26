@@ -107,7 +107,7 @@ function drawDataArea(ctx, centerX, centerY, radius, startAngle, scores) {
     for (let i = 0; i <= 5; i++) {
         const index = i % 5;
         const angle = startAngle + (Math.PI * 2 / 5) * i;
-        const value = scores[index] / 10;
+        const value = scores[index] / 5;  // 1-5 分制
         const x = centerX + radius * value * Math.cos(angle);
         const y = centerY + radius * value * Math.sin(angle);
 
@@ -151,7 +151,7 @@ function drawLabels(ctx, centerX, centerY, radius, startAngle, size) {
 function drawDataPoints(ctx, centerX, centerY, radius, startAngle, scores) {
     for (let i = 0; i < 5; i++) {
         const angle = startAngle + (Math.PI * 2 / 5) * i;
-        const value = scores[i] / 10;
+        const value = scores[i] / 5;  // 1-5 分制
         const x = centerX + radius * value * Math.cos(angle);
         const y = centerY + radius * value * Math.sin(angle);
 

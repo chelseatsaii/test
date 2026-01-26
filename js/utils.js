@@ -278,7 +278,7 @@ export function drawRadar(canvas, valuesObj) {
   ctx.fill();
   ctx.stroke();
 
-  ctx.setTransform(1,0,0,1,0,0);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
 
@@ -334,3 +334,198 @@ export function renderMetricBars(container, metrics, config = {}) {
   });
 }
 
+// ========================================
+// n8n API 整合函數
+// ========================================
+
+/**
+ * Base64 轉 Blob
+ * @param {string} base64 - Base64 字串
+ * @returns {Blob} Blob 物件
+ */
+export function base64ToBlob(base64) {
+  try {
+    const parts = base64.split(',');
+    const contentType = parts[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+    const raw = atob(parts[1]);
+    const rawLength = raw.length;
+    const uInt8Array = new Uint8Array(rawLength);
+
+    for (let i = 0; i < rawLength; i++) {
+      uInt8Array[i] = raw.charCodeAt(i);
+    }
+
+    return new Blob([uInt8Array], { type: contentType });
+  } catch (error) {
+    console.error('Base64 轉 Blob 失敗:', error);
+    return null;
+  }
+}
+
+/**
+ * 提交分析到 n8n
+ * @param {Object} options - 提交選項
+ * @param {string} options.photoBase64 - 照片 Base64
+ * @param {Object} options.answers - 問卷答案
+ * @param {string} options.lineUserId - LINE User ID
+ * @returns {Promise<Object>} 回傳 { success, session_id, message }
+ */
+export async function submitAnalysis({ photoBase64, answers, lineUserId }) {
+  // 動態 import API 設定
+  const { API_CONFIG, getAnalyzeUrl } = await import('./api-config.js');
+
+  // 開發模式
+  if (API_CONFIG.DEV_MODE) {
+    console.log('📝 開發模式: 模擬提交分析');
+    await new Promise(r => setTimeout(r, 1000)); // 模擬延遲
+    const mockSessionId = 'dev_' + Date.now();
+    localStorage.setItem('session_id', mockSessionId);
+    return { success: true, session_id: mockSessionId, message: '開發模式' };
+  }
+
+  // 正式模式
+  const analyzeUrl = getAnalyzeUrl();
+  if (!analyzeUrl) {
+    return { success: false, message: 'API URL 未設定' };
+  }
+
+  try {
+    // 準備 FormData
+    const formData = new FormData();
+
+    // 加入照片
+    if (photoBase64) {
+      const blob = base64ToBlob(photoBase64);
+      if (blob) {
+        formData.append('photo', blob, 'user_photo.jpg');
+      }
+    }
+
+    // 加入 LINE User ID
+    formData.append('line_user_id', lineUserId || 'unknown');
+
+    // 加入問卷答案 (JSON string)
+    formData.append('answers', JSON.stringify(answers || {}));
+
+    // 發送請求
+    const response = await fetch(analyzeUrl, {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.success && result.session_id) {
+      localStorage.setItem('session_id', result.session_id);
+      return result;
+    }
+
+    return { success: false, message: result.message || '提交失敗' };
+
+  } catch (error) {
+    console.error('提交分析失敗:', error);
+    return { success: false, message: error.message || '網路錯誤' };
+  }
+}
+
+/**
+ * 取得分析結果
+ * @param {string} sessionId - Session ID
+ * @returns {Promise<Object>} 分析結果
+ */
+export async function getAnalysisResult(sessionId) {
+  const { API_CONFIG, getResultUrl } = await import('./api-config.js');
+
+  // 開發模式: 使用 mock 資料
+  if (API_CONFIG.DEV_MODE) {
+    console.log('📝 開發模式: 使用 mock 資料');
+    const response = await fetch('./api/mock_result.json');
+    const data = await response.json();
+    return { status: 'completed', ...data };
+  }
+
+  // 正式模式
+  const resultUrl = getResultUrl(sessionId);
+
+  try {
+    const response = await fetch(resultUrl);
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error('取得結果失敗:', error);
+    return { status: 'failed', message: error.message };
+  }
+}
+
+/**
+ * 輪詢分析結果
+ * @param {Object} options - 輪詢選項
+ * @param {string} options.sessionId - Session ID
+ * @param {Function} options.onProgress - 進度回調
+ * @param {Function} options.onComplete - 完成回調
+ * @param {Function} options.onError - 錯誤回調
+ * @param {number} options.timeout - 超時時間 (毫秒)
+ * @param {number} options.interval - 輪詢間隔 (毫秒)
+ */
+export function pollAnalysisResult({
+  sessionId,
+  onProgress,
+  onComplete,
+  onError,
+  timeout = 30000,
+  interval = 2000
+}) {
+  let elapsed = 0;
+
+  const poll = async () => {
+    try {
+      const result = await getAnalysisResult(sessionId);
+
+      if (result.status === 'completed') {
+        onComplete?.(result);
+        return;
+      }
+
+      if (result.status === 'failed') {
+        onError?.(result.message || '分析失敗');
+        return;
+      }
+
+      // 繼續輪詢
+      elapsed += interval;
+
+      if (elapsed >= timeout) {
+        onError?.('分析超時,請稍後再試');
+        return;
+      }
+
+      onProgress?.({ elapsed, timeout, status: result.status || 'processing' });
+      setTimeout(poll, interval);
+
+    } catch (error) {
+      onError?.(error.message || '網路錯誤');
+    }
+  };
+
+  // 開始輪詢
+  poll();
+}
+
+/**
+ * 取得 LINE User ID
+ * @returns {string|null} LINE User ID
+ */
+export function getLineUserId() {
+  // 先嘗試從 LIFF 取得
+  if (typeof liff !== 'undefined' && liff.isLoggedIn && liff.isLoggedIn()) {
+    try {
+      const context = liff.getContext();
+      return context?.userId || null;
+    } catch (e) {
+      console.warn('無法取得 LIFF context:', e);
+    }
+  }
+
+  // 從 localStorage 取得 (如果之前有儲存)
+  return localStorage.getItem('line_user_id') || null;
+}
