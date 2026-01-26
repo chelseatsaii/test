@@ -765,19 +765,21 @@
 
     /**
      * 更新對齊狀態的 UI 回饋
+     * 🔧 修復：即使 state 相同，qualityIssue 改變時也要更新提示
      */
     let currentAlignmentState = 'poor';
     function updateAlignmentUI(newState, qualityIssue = '') {
-      if (newState === currentAlignmentState) return;
+      // 只在 state 改變時更新 CSS class
+      if (newState !== currentAlignmentState) {
+        // 移除所有對齊狀態
+        DOM.faceGuide.classList.remove('aligned-perfect', 'aligned-good', 'aligned-poor');
 
-      // 移除所有對齊狀態
-      DOM.faceGuide.classList.remove('aligned-perfect', 'aligned-good', 'aligned-poor');
+        // 加入新狀態
+        DOM.faceGuide.classList.add(`aligned-${newState}`);
+        currentAlignmentState = newState;
+      }
 
-      // 加入新狀態
-      DOM.faceGuide.classList.add(`aligned-${newState}`);
-      currentAlignmentState = newState;
-
-      // 更新按鈕與提示文字（友善版本）
+      // 每次都更新按鈕與提示文字（確保 qualityIssue 變化時也能更新）
       if (newState === 'perfect') {
         DOM.captureBtn.classList.add('active');
         DOM.hint.textContent = "完美對準！保持姿勢拍照";
