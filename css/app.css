@@ -222,9 +222,8 @@ header {
   position: relative;
   z-index: 1;
 
-  /* ✅ 關鍵：避開 fixed header */
-  padding:
-    calc(var(--header-h) + var(--safe-top) + 18px) 16px calc(24px + var(--safe-bottom)) 16px;
+  /* ✅ 調整：已改用浮動按鈕,不需要避開大型 header */
+  padding: calc(24px + var(--safe-top)) 16px calc(24px + var(--safe-bottom)) 16px;
 
   box-sizing: border-box;
 

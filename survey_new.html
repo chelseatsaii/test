@@ -243,6 +243,61 @@
             font-size: 16px;
             text-align: center;
         }
+
+        /* 照片預覽 */
+        .photo-preview {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .photo-preview-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            transform: scaleX(-1);
+            /* 保持與拍照時的鏡像一致 */
+        }
+
+        .photo-preview-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .photo-preview-label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .photo-preview-status {
+            font-size: 14px;
+            font-weight: 600;
+            color: #10b981;
+        }
+
+        .btn-retake-small {
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-retake-small:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 
@@ -275,6 +330,15 @@
             </div>
 
             <div class="body">
+                <!-- 照片預覽 -->
+                <div id="photoPreview" class="photo-preview" style="display: none;">
+                    <img id="photoPreviewImg" class="photo-preview-img" src="" alt="拍攝照片">
+                    <div class="photo-preview-info">
+                        <div class="photo-preview-label">已拍攝照片</div>
+                        <div class="photo-preview-status">✓ 照片已準備好</div>
+                    </div>
+                    <button type="button" class="btn-retake-small" onclick="location.href='analyze.html'">重新拍照</button>
+                </div>
                 <!-- 進度指示 -->
                 <div id="progressBarContainer" class="progress-bar" style="display: none;">
                     <div class="progress-fill" id="progressFill"></div>
@@ -658,7 +722,21 @@
                     updateProgress();
                 };
 
-                // 初始化 - 已經預設顯示說明頁
+                // 初始化 - 檢查並顯示照片預覽
+                function initPhotoPreview() {
+                    const photo = localStorage.getItem('user_photo');
+                    if (photo) {
+                        const previewContainer = document.getElementById('photoPreview');
+                        const previewImg = document.getElementById('photoPreviewImg');
+                        if (previewContainer && previewImg) {
+                            previewImg.src = photo;
+                            previewContainer.style.display = 'flex';
+                        }
+                    }
+                }
+
+                // 頁面載入時執行
+                initPhotoPreview();
             </script>
 </body>
 
