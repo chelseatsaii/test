@@ -31,23 +31,23 @@
     "problem_analysis": "眼周區域略顯疲態，建議加強保濕與按摩促進循環。T 字部位油脂分泌稍多，可調整清潔頻率並選用清爽型保養品。"
   },
   "b_scores": {
-    "darkCircles": 7.8,
-    "acne": 6.1,
-    "comedones": 5.4,
-    "wrinkles": 4.2,
-    "spots": 6.9
+    "darkCircles": 3.9,
+    "acne": 3.1,
+    "comedones": 2.7,
+    "wrinkles": 2.1,
+    "spots": 3.5
   },
   "b_top_issues": [
     {
       "name": "黑眼圈",
       "key": "darkCircles",
-      "score": 7.8,
+      "score": 3.9,
       "llm_analysis": "眼周區域循環不佳,靜脈瘀血較為明顯。建議加強眼周保濕與按摩,促進血液循環,減少暗沉感。"
     },
     {
       "name": "斑",
       "key": "spots",
-      "score": 6.9,
+      "score": 3.5,
       "llm_analysis": "臉頰區域色素沉澱,可能與日曬或荷爾蒙變化有關。建議使用美白產品,並做好防曬措施。"
     }
   ],

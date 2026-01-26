@@ -48,22 +48,29 @@ export function loadSectionA(result) {
  * @param {Object} result - 分析結果
  */
 function loadUserPhoto(result) {
-    const photoEl = document.getElementById('user-photo-a');
-    if (!photoEl) {
-        console.warn('⚠️ 找不到 user-photo-a 元素');
-        return;
-    }
-
     // 優先從 localStorage 讀取 (Base64),否則從 result 讀取 URL
     const photoUrl = localStorage.getItem('user_photo')
         || result?.photo_url;
 
-    if (photoUrl) {
-        photoEl.src = photoUrl;
-        photoEl.style.display = 'block';
-        console.log('✅ 使用者照片已載入');
-    } else {
+    if (!photoUrl) {
         console.warn('⚠️ 找不到使用者照片');
+        return;
+    }
+
+    // 載入詳情頁照片
+    const photoDetailEl = document.getElementById('user-photo-a');
+    if (photoDetailEl) {
+        photoDetailEl.src = photoUrl;
+        photoDetailEl.style.display = 'block';
+        console.log('✅ 詳情頁使用者照片已載入');
+    }
+
+    // 載入總覽頁照片
+    const photoOverviewEl = document.getElementById('user-photo-overview');
+    if (photoOverviewEl) {
+        photoOverviewEl.src = photoUrl;
+        photoOverviewEl.style.display = 'block';
+        console.log('✅ 總覽頁使用者照片已載入');
     }
 }
 

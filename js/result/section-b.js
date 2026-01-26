@@ -14,11 +14,11 @@ const ISSUE_NAMES = {
     comedone: '粉刺'
 };
 
-// 嚴重度等級
+// 嚴重度等級 (1-5 分制)
 const SEVERITY_LEVELS = [
-    { min: 0, max: 3, label: '輕微', color: '#4CAF50' },
-    { min: 3, max: 6, label: '中等', color: '#FF9800' },
-    { min: 6, max: 10, label: '嚴重', color: '#F44336' }
+    { min: 1, max: 2, label: '輕微', color: '#4CAF50' },      // 1-2 分: 輕微
+    { min: 2, max: 3.5, label: '中等', color: '#FF9800' },    // 2-3.5 分: 中等
+    { min: 3.5, max: 5, label: '嚴重', color: '#F44336' }     // 3.5-5 分: 嚴重
 ];
 
 /**
@@ -114,9 +114,9 @@ function renderTopIssues(topIssues) {
             </div>
             <div class="issue-score">
                 <div class="score-bar">
-                    <div class="score-fill" style="width:${issue.score * 10}%; background:${severity.color}"></div>
+                    <div class="score-fill" style="width:${issue.score * 20}%; background:${severity.color}"></div>
                 </div>
-                <span class="score-value">${issue.score.toFixed(1)}/10</span>
+                <span class="score-value">${issue.score.toFixed(1)}/5</span>
             </div>
             ${issue.llm_analysis ? `<p class="issue-analysis">${issue.llm_analysis}</p>` : ''}
         `;
@@ -129,7 +129,7 @@ function renderTopIssues(topIssues) {
 
 /**
  * 取得嚴重度等級
- * @param {number} score - 分數 (0-10)
+ * @param {number} score - 分數 (1-5)
  * @returns {Object} 嚴重度等級資訊
  */
 function getSeverityLevel(score) {
