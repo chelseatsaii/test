@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-TW">
 
 <head>
@@ -565,12 +565,43 @@
         const lm = landmarks[i];
         points[i] = {
           x: lm.x * srcW * scale + offsetX,
-          y: lm.y * srcH * scale + offsetY
+          y: lm.y * srcH * scale + offsetY,
+          visibility: lm.visibility || 1  // 保留可見度資訊
         };
       }
 
       // 不繪製網格，只回傳座標點供對齊檢測使用
       return points;
+    }
+
+    /**
+     * 檢查臉部是否被遮擋
+     * @param {Array} points - 臉部特徵點 (包含 visibility)
+     * @returns {string|null} 如果有遮擋返回提示訊息,否則返回 null
+     */
+    function checkFaceOcclusion(points) {
+      if (!points || points.length === 0) return null;
+
+      // MediaPipe 的重要特徵點索引
+      const IMPORTANT_POINTS = {
+        '鼻子': 1,        // 鼻尖
+        '左眼': 33,       // 左眼
+        '右眼': 263,      // 右眼
+        '嘴巴': 13,       // 嘴巴中心
+        '左臉頰': 234,    // 左臉頰
+        '右臉頰': 454     // 右臉頰
+      };
+
+      const MIN_VISIBILITY = 0.5;  // 最低可見度閾值
+
+      for (const [name, index] of Object.entries(IMPORTANT_POINTS)) {
+        const point = points[index];
+        if (!point || (point.visibility !== undefined && point.visibility < MIN_VISIBILITY)) {
+          return `請勿遮擋${name}`;
+        }
+      }
+
+      return null;  // 沒有遮擋
     }
 
 
@@ -680,6 +711,14 @@
       latestScores.blur = blurScore;
       latestScores.alignment = 'poor'; // 預設為 poor，後續會更新
 
+      // 🔍 Debug: 輸出品質數值
+      console.log('品質檢測:', {
+        brightness: brightness.toFixed(1),
+        blurScore: blurScore.toFixed(1),
+        wRatio: wRatio.toFixed(2),
+        dist: dist.toFixed(1)
+      });
+
       // 品質閾值
       const MIN_BRIGHTNESS = 80;  // 最低亮度要求
       const MAX_BRIGHTNESS = 220; // 最高亮度（避免過曝）
@@ -689,25 +728,30 @@
       let state = 'poor';
       let qualityIssue = '';
 
+      // 🆕 優先檢查遮擋
+      const occlusionIssue = checkFaceOcclusion(points);
+      if (occlusionIssue) {
+        qualityIssue = occlusionIssue;
+      }
       // 檢查光線
-      if (brightness < MIN_BRIGHTNESS) {
-        qualityIssue = '光線不足，請移至明亮處';
+      else if (brightness < MIN_BRIGHTNESS) {
+        qualityIssue = '光線不足';
       } else if (brightness > MAX_BRIGHTNESS) {
-        qualityIssue = '光線過強，請避免強光';
+        qualityIssue = '光線過強';
       }
       // 檢查清晰度
       else if (blurScore < MIN_BLUR_SCORE) {
-        qualityIssue = '畫面模糊，請保持穩定';
+        qualityIssue = '畫面模糊';
       }
-      // 檢查距離（更嚴格）
+      // 檢查距離
       else if (wRatio < 0.75 || wRatio > 1.05) {
-        qualityIssue = wRatio < 0.75 ? '請靠近一點' : '請稍微遠離';
+        qualityIssue = wRatio < 0.75 ? '請靠近一點' : '請遠離一點';
       }
-      // 檢查位置（更嚴格）
+      // 檢查位置
       else if (dist < 20 && wRatio >= 0.9 && wRatio <= 1.0) {
-        state = 'perfect'; // 完美對準：距離近、大小剛好、光線OK、清晰
+        state = 'perfect';
       } else if (dist < 35 && wRatio >= 0.8 && wRatio <= 1.1) {
-        state = 'good'; // 良好對準：稍微寬鬆一點
+        state = 'good';
       } else {
         qualityIssue = '請將臉部移至框線內';
       }
@@ -736,27 +780,14 @@
       // 更新按鈕與提示文字（友善版本）
       if (newState === 'perfect') {
         DOM.captureBtn.classList.add('active');
-        DOM.hint.textContent = "✨ 完美對準！保持姿勢拍照";
+        DOM.hint.textContent = "完美對準！保持姿勢拍照";
       } else if (newState === 'good') {
         DOM.captureBtn.classList.add('active');
-        DOM.hint.textContent = "✓ 已對準，可以拍照了";
+        DOM.hint.textContent = "已對準，可以拍照了";
       } else {
         DOM.captureBtn.classList.remove('active');
-        // 顯示友善的品質問題提示
-        if (qualityIssue) {
-          // 將技術性訊息轉換為友善訊息
-          const friendlyMessages = {
-            '光線不足，請移至明亮處': '💡 請移到窗邊或開燈，讓臉部更明亮',
-            '光線過強，請避免強光': '☀️ 光線過強，請避免直射強光',
-            '畫面模糊，請保持穩定': '✨ 畫面模糊，請拿穩手機並保持臉部不動',
-            '請靠近一點': '📏 請將臉部移近一點，填滿框線',
-            '請稍微遠離': '📏 請稍微遠離一點',
-            '請將臉部移至框線內': '請將臉部移至框線內'
-          };
-          DOM.hint.textContent = friendlyMessages[qualityIssue] || qualityIssue;
-        } else {
-          DOM.hint.textContent = "請將臉部移至框線內";
-        }
+        // 直接顯示品質問題提示
+        DOM.hint.textContent = qualityIssue || '請將臉部移至框線內';
       }
     }
 
