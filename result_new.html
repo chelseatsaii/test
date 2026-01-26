@@ -811,7 +811,7 @@
         </button>
 
         <div class="stage">
-            <div class="card" style="max-width: 1000px;">
+            <div class="card">
                 <div class="card-head">
                     <div>
                         <div class="title">您的膚況分析報告</div>
@@ -2087,7 +2087,6 @@
                     <div class="product-info">
                         <div class="product-brand">${product.brand || '品牌名稱'}</div>
                         <div class="product-name">${product.name}</div>
-                        <div class="product-price">NT$ ${product.price || 'N/A'}</div>
                         <div class="product-ingredient">
                             ${product.ingredients ? '含有: ' + product.ingredients.slice(0, 3).join('、') : ''}
                         </div>
@@ -2097,6 +2096,11 @@
                                class="product-link"
                                onclick="trackProductClick(${product.id || index})">
                                 前往官網 →
+                            </a>
+                            <a href="${product.momo_url || 'https://www.momoshop.com.tw/'}" 
+                               target="_blank" 
+                               class="product-link">
+                                前往 momo →
                             </a>
                         </div>
                     </div>
