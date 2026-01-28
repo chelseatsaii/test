@@ -1,8 +1,8 @@
 // API 配置
 export const API_CONFIG = {
-    // n8n Webhook URL (請替換為實際的 n8n URL)
-    N8N_ANALYZE_URL: 'https://your-n8n.app.n8n.cloud/webhook/analyze',
-    N8N_RESULT_URL: 'https://your-n8n.app.n8n.cloud/webhook/result',
+    // n8n Webhook URL
+    N8N_ANALYZE_URL: 'https://kaden-calisthenical-jin.ngrok-free.dev/webhook/analyze',
+    N8N_RESULT_URL: 'https://kaden-calisthenical-jin.ngrok-free.dev/webhook/result',
 
     // GCP Cloud Run API (備用)
     GCP_RESULT_URL: 'https://your-api.run.app/api/result',
@@ -12,13 +12,13 @@ export const API_CONFIG = {
     LIFF_ID: 'YOUR_LIFF_ID', // 請替換為實際的 LIFF ID
 
     // 超時設定 (毫秒)
-    TIMEOUT: 30000,
+    TIMEOUT: 60000, // 增加到 60 秒以應對 AI 分析
 
     // 輪詢間隔 (毫秒)
-    POLL_INTERVAL: 2000,
+    POLL_INTERVAL: 3000,
 
     // 開發模式 (設為 true 時使用 mock 資料)
-    DEV_MODE: true
+    DEV_MODE: false
 };
 
 // GA4 配置

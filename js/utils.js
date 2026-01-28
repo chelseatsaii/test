@@ -1,7 +1,7 @@
 // assets/app.js
 const AUTH_KEY = "skinapp_auth";
 const RESULT_KEY = "skinapp_result";
-const DEV_FORCE_MOCK = false; // 需要時可改 true，強制用 mock
+const DEV_FORCE_MOCK = true; // 需要時可改 true，強制用 mock
 
 export function toast(msg) {
   const el = document.getElementById("toast");
